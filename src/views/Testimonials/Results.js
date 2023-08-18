@@ -27,11 +27,12 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const Results = ({ className,...rest }) => {
+const Results = ({ className,handleEditDrawerOpen,testimonials,...rest }) => {
   const classes = useStyles();
   const [selectedTestimonial, setSelectedTestimonial] = useState([]);
   const [limit, setLimit] = useState(5);
   const [page, setPage] = useState(0);
+  const [loading, setLoading] = useState(true);
 
  
   const handleLimitChange = (event) => {
@@ -45,23 +46,24 @@ const Results = ({ className,...rest }) => {
     
 
   const getAllTestimonials = async () => {
+    setLoading(true);
     await axios
       .get('https://localhost:44312/api/Testimonials')
       .then(res => {
         console.log(res.data.data);
-        setSelectedTestimonial(res.data.data);
-      })
+           setSelectedTestimonial(res.data.data);
+        })
       .catch(error => {
         console.log(error);
       });
   };
 
   const deleteTestiminials = async(id) => {
-    await axios
-      .delete(`https://localhost:44312/api/Testimonials/${id}`)
+    await axios.delete(`https://localhost:44312/api/Testimonials?TId=${id}`)
       .then(res => {
        
         console.log('Record is deleted', res);
+       
       })
       .catch(error => {
         console.log(error);
@@ -70,10 +72,10 @@ const Results = ({ className,...rest }) => {
 
   const editTestimonials = async(id) => {
     await axios
-      .delete(`https://localhost:44312/api/Testimonials/${id}`)
+      .put(`https://localhost:44312/api/Testimonials/${id}`)
       .then(res => {
        
-        console.log('Record is deleted', res);
+        console.log('Record is edited', res);
       })
       .catch(error => {
         console.log(error);
@@ -134,7 +136,10 @@ const Results = ({ className,...rest }) => {
                       <Button
                         color="secondary"
                         variant="contained"
-                        onClick={() => editTestimonials(testimonials.TId)}
+                        onClick={() => {
+                          editTestimonials(testimonials.TId)
+                         
+                        }}
                       >
                         Edit
                       </Button>

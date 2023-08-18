@@ -6,8 +6,8 @@ import AccountView from './views/account/AccountView';
 import DashboardView from './views/reports/DashboardView';
 import NotFoundView from './views/errors/NotFoundView';
 import TestimonialsList from './views/Testimonials';
-/*import StaffList from 'src/views/staff/StaffListView';
-import HighlightListView from './views/Highlight/HighlightListView';
+import StaffList from 'src/views/staff/StaffListView';
+/*import HighlightListView from './views/Highlight/HighlightListView';
 import AchivementsListView from './views/achivements/AchivementListView';
 import ActivitiesListView from './views/activities/ActivitiesListView';
 import UpdateListView from './views/updates/UpdateListView';
@@ -34,9 +34,10 @@ const routes = [
       { path: 'account', element: <AccountView /> },
       { path: 'dashboard', element: <DashboardView /> },
       { path: 'testimonial', element: <TestimonialsList /> },
-     /* { path: 'updates', element: <UpdateListView /> },
       { path: 'staff', element: <StaffList /> },
-      { path: 'highlights', element: <HighlightListView /> },
+
+     /* { path: 'updates', element: <UpdateListView /> },
+       { path: 'highlights', element: <HighlightListView /> },
       { path: 'achivements', element: <AchivementsListView /> },
       { path: 'activities', element: <ActivitiesListView /> },
       { path: 'academicCalender', element: <CalendarList /> },

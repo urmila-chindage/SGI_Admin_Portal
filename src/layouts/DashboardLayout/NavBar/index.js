@@ -49,6 +49,11 @@ const items = [
     title: 'Testimonials'
   },
   {
+    href: '/app/staff',
+    icon: UsersIcon,
+    title: 'Staff'
+  },
+  {
     href: '/app/settings',
     icon: SettingsIcon,
     title: 'Settings'

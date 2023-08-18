@@ -1,6 +1,6 @@
 import React from 'react';
+import * as yup from 'yup';
 import { Formik } from 'formik';
-import { v4 as uuid } from 'uuid';
 import {
   Box,
   Button,
@@ -33,13 +33,13 @@ const AddTestimonial = ({ handleDrawerClose }) => {
 
   const [Name,setName] = useState("");
   const [Desc,setDesc] = useState("");
-  const [Image,SetImage] = useState("");
+  const [Image,SetImage] = useState(""); 
 
   const changeProfileImage = (e) => {
     if (e.target.files && e.target.files[0]) {
       let reader = new FileReader();
       reader.onload = (e) => {
-        SetImage(e.target.result);
+         SetImage(e.target.result);
       };
       reader.readAsDataURL(e.target.files[0]);
     }
@@ -63,54 +63,77 @@ const AddTestimonial = ({ handleDrawerClose }) => {
               Desc: "",
               Image: ""
             }}
+            validationSchema={yup.object().shape({
+              Name: yup
+              .string()
+              .required('Your Name is Required!'),
+             
+
+              Desc: yup
+              .string()
+              .required('Description is Required!')
+              .min(12, 'Your Description Needs To Be Valid'),
+
+              Image: yup
+              .string()
+              .required('Image is Required!'),
+            })}
+           
             onSubmit={async () => {
               const payload = {
-                Name : Name,
-                Desc : Desc,
-                Image : Image
+                Name:Name,
+                Desc:Desc,
+                Image:Image
               }
               await axios.post("https://localhost:44312/api/Testimonials",payload)
               .then((res)=>{
                 console.log(res.data);
-                setName("");
-                setDesc("");
-                SetImage("");
+              
+               
               })
               .catch((error)=>{
                 console.log(error);
               })
             }}
           >
-            {({ errors, handleBlur, handleSubmit, isSubmitting, touched }) => (
+            {({ errors, handleBlur, handleSubmit, isSubmitting, touched ,data,payload }) => (
               <form onSubmit={handleSubmit}>
+              
                 <Box mb={3}>
                   <Typography color="textPrimary" variant="h2">
                     Add new Testimonial
                   </Typography>
                 </Box>
+
+              
                 <TextField
+                  
                   fullWidth
+                 
                   label="Name"
                   margin="normal"
                   name="Name"
                   onBlur={handleBlur}
-                  onChange={e => setName(e.target.value)}
+                  onChange={e=>setName(e.target.value)}
                   value={Name}
                   variant="outlined"
+                 
                 />
                
                 <TextField
-                  fullWidth
+                
+                 fullWidth
+              
                   label="Message"
                   margin="normal"
                   name="Desc"
                   onBlur={handleBlur}
-                  onChange={e => setDesc(e.target.value)}
+                  onChange={e=>setDesc(e.target.value)}
                   value={Desc}
                   variant="outlined"
                   multiline
-                  rows={2}
-                  maxRows={4}
+                  rows={6}
+                  
                 />
                 <Typography color="textPrimary" variant="h4">
                   Image:

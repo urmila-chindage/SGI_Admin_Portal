@@ -10,12 +10,12 @@ import {
 } from '@material-ui/core';
 import Page from 'src/components/Page';
 import Toolbar from './Toolbar';
-import { useEffect } from 'react';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-
 import Results from './Results';
 import AddTestimonial from './AddTestimonials';
+
+
 
 const drawerWidth = "80%";
 
@@ -85,12 +85,9 @@ const useStyles = makeStyles((theme) => ({
 const TestimonialsList = () => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
-  const [data, setData] = useState([]);
+  const [data,setData] = useState([]);
   const theme = useTheme();
 
-
-
- 
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -99,7 +96,7 @@ const TestimonialsList = () => {
     setOpen(false);
   };
 
-  return (
+ return (
     <Page
       className={classes.root}
       title="Testimonials"
@@ -127,6 +124,10 @@ const TestimonialsList = () => {
         <AddTestimonial handleDrawerClose={handleDrawerClose} />
       </Drawer>
       </Container>
+
+    
+    
+      
     </Page>
   );
 };
