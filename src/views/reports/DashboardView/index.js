@@ -37,23 +37,26 @@ const Dashboard = () => {
           <Grid item lg={4} md={6} xl={3} xs={12}>
             <Headlines />
           </Grid>
+         
           <Grid item lg={3} sm={6} xl={3} xs={12}>
             <Subscribers />
           </Grid>
-          <Grid item lg={4} md={6} xl={3} xs={12}>
-            <TrafficByDevice />
+          <Grid item lg={6} md={6} xl={4} xs={12}>
+            <CounterValues />
           </Grid>
-          <Grid item lg={4} md={6} xl={3} xs={12}>
+         
+          <Grid item lg={6} md={6} xl={4} xs={12}>
             <LatestContacts />
           </Grid>
          
-          <Grid item lg={4} md={6} xl={3} xs={12}>
+          <Grid item lg={6} md={6} xl={4} xs={12}>
             <SubscribersList />
           </Grid>
-         
-          <Grid item lg={4} md={6} xl={3} xs={12}>
-            <CounterValues />
+
+          <Grid item lg={6} md={6} xl={4} xs={12}>
+            <TrafficByDevice />
           </Grid>
+         
            <Grid item lg={6} md={6} xl={6} xs={6}>
             <ImgCarousel />
           </Grid>

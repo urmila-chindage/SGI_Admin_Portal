@@ -15,6 +15,7 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import AddStaff from './AddStaff';
 import EditStaff from './EditStaff';
+import axios from "axios";
 
 const drawerWidth = '80%';
 
@@ -89,7 +90,21 @@ const StaffList = () => {
   const [currentlyEditing, setCurrentlyEditing] = useState('');
   const theme = useTheme();
 
- 
+  const getAllStaffMembers = async () => {
+    await axios
+      .get('https://localhost:44312/api/StaffData')
+      .then(res => {
+        console.log(res.data.data);
+        setStaffMembers(res.data.data);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
+
+  useEffect(()=>{
+    getAllStaffMembers();
+  },[])
  
 
   const handleDrawerOpen = () => {
@@ -108,6 +123,8 @@ const StaffList = () => {
     setIsEditOpen(false);
   };
 
+
+
   return (
     <Page className={classes.root} title="Staff">
       <Container maxWidth={false}>
@@ -115,14 +132,16 @@ const StaffList = () => {
         <Box mt={3}>
           <Grid container spacing={3}>
            
-              <Grid item  lg={4} md={6} xs={12}>
+          {staffMembers.map(staff => (
+              <Grid item key={staff.StaffId} lg={4} md={6} xs={12}>
                 <StaffCard
-                
-                  staff="fgfgf"
+                  className={classes.staffCard}
+                  staff={staff}
                   handleEditDrawerOpen={handleEditDrawerOpen}
                   setCurrentlyEditing={setCurrentlyEditing}
                 />
               </Grid>
+            ))}
             
           </Grid>
         </Box>
@@ -169,8 +188,11 @@ const StaffList = () => {
             <EditStaff
               handleEditDrawerClose={handleEditDrawerClose}
               currentStaffId={currentlyEditing}
+              
             />
+           
           )}
+          
         </Drawer>
       </Container>
     </Page>

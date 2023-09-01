@@ -14,6 +14,9 @@ import { useState } from 'react';
 
 import { useEffect } from 'react';
 import ContactMailIcon from '@material-ui/icons/ContactMail';
+import axios from "axios";
+
+
 const useStyles = makeStyles(theme => ({
   root: {
     height: '100%'
@@ -36,6 +39,21 @@ const Subscribers = ({ className, ...rest }) => {
   const classes = useStyles();
 
   const [subscribers, setSubscribers] = useState(0);
+
+  const getSubscribersCount = async() =>{
+    await axios.get("https://localhost:44312/api/Subscriber")
+    .then((res)=>{
+      //console.log(res.data.data.Counts);
+      setSubscribers(res.data.data[0].Counts);
+    })
+    .catch((error)=>{
+      console.log(error);
+    })
+  }
+
+  useEffect(()=>{
+    getSubscribersCount()
+  },[])
 
  return (
     <Card className={clsx(classes.root, className)} {...rest}>

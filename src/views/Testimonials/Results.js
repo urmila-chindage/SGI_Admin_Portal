@@ -18,6 +18,7 @@ import {
   ListItemAvatar,
   Avatar
 } from '@material-ui/core';
+import EditIcon from '@material-ui/icons/Edit';
 import axios from 'axios';
 
 const useStyles = makeStyles(theme => ({
@@ -27,23 +28,25 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const Results = ({ className,handleEditDrawerOpen,testimonials,...rest }) => {
+const Results = ({
+  className,
+  handleEditDrawerOpen,
+  setCurrentlyEditing,
+  testimonials,
+  ...rest
+}) => {
   const classes = useStyles();
   const [selectedTestimonial, setSelectedTestimonial] = useState([]);
   const [limit, setLimit] = useState(5);
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(true);
 
- 
-  const handleLimitChange = (event) => {
+  const handleLimitChange = event => {
     setLimit(event.target.value);
   };
   const handlePageChange = (event, newPage) => {
     setPage(newPage);
   };
-  
-
-    
 
   const getAllTestimonials = async () => {
     setLoading(true);
@@ -51,37 +54,35 @@ const Results = ({ className,handleEditDrawerOpen,testimonials,...rest }) => {
       .get('https://localhost:44312/api/Testimonials')
       .then(res => {
         console.log(res.data.data);
-           setSelectedTestimonial(res.data.data);
-        })
-      .catch(error => {
-        console.log(error);
-      });
-  };
-
-  const deleteTestiminials = async(id) => {
-    await axios.delete(`https://localhost:44312/api/Testimonials?TId=${id}`)
-      .then(res => {
-       
-        console.log('Record is deleted', res);
-       
+        setSelectedTestimonial(res.data.data);
       })
       .catch(error => {
         console.log(error);
       });
   };
 
-  const editTestimonials = async(id) => {
+  const deleteTestiminials = async id => {
+    await axios
+      .delete(`https://localhost:44312/api/Testimonials?TId=${id}`)
+      .then(res => {
+        console.log('Record is deleted', res);
+        getAllTestimonials();
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
+
+  const editTestimonials = async id => {
     await axios
       .put(`https://localhost:44312/api/Testimonials/${id}`)
       .then(res => {
-       
         console.log('Record is edited', res);
       })
       .catch(error => {
         console.log(error);
       });
   };
-
 
   useEffect(() => {
     getAllTestimonials();
@@ -102,51 +103,55 @@ const Results = ({ className,handleEditDrawerOpen,testimonials,...rest }) => {
             </TableHead>
 
             <TableBody>
-              {selectedTestimonial.slice((page * limit), ((page * limit) + limit)).map((testimonials) => {
-                return (
-                  <TableRow hover key={testimonials.TId}>
-                   
+              {selectedTestimonial
+                .slice(page * limit, page * limit + limit)
+                .map(testimonials => {
+                  return (
+                    <TableRow hover key={testimonials.TId}>
+                      <TableCell>
+                        <Box alignItems="center" display="flex">
+                          <Typography color="textPrimary" variant="body1">
+                            {testimonials.Name}
+                          </Typography>
+                        </Box>
+                      </TableCell>
 
-                    <TableCell>
-                      <Box alignItems="center" display="flex">
-                        <Typography color="textPrimary" variant="body1">
-                          {testimonials.Name}
-                        </Typography>
-                      </Box>
-                    </TableCell>
+                      <TableCell>{testimonials.Desc}</TableCell>
 
-                    <TableCell>{testimonials.Desc}</TableCell>
+                      <TableCell>
+                        <img
+                          src={testimonials.Image}
+                          className="profileImage"
+                        />
+                      </TableCell>
+                      <TableCell>{testimonials.CreatedDate}</TableCell>
 
-                    <TableCell>
-                      <img src={testimonials.Image} className="profileImage" />
-                    </TableCell>
-                    <TableCell>{testimonials.CreatedDate}</TableCell>
+                      <TableCell>
+                        <Button
+                          color="secondary"
+                          variant="contained"
+                          onClick={() => deleteTestiminials(testimonials.TId)}
+                        >
+                          Delete
+                        </Button>
+                      </TableCell>
 
-                    <TableCell>
-                      <Button
-                        color="secondary"
-                        variant="contained"
-                        onClick={() => deleteTestiminials(testimonials.TId)}
-                      >
-                        Delete
-                      </Button>
-                    </TableCell>
-
-                    <TableCell>
-                      <Button
-                        color="secondary"
-                        variant="contained"
-                        onClick={() => {
-                          editTestimonials(testimonials.TId)
-                         
-                        }}
-                      >
-                        Edit
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
+                      <TableCell>
+                        <Button
+                          onClick={() => {
+                            setCurrentlyEditing(testimonials.TId);
+                            console.info(testimonials.TId);
+                            handleEditDrawerOpen();
+                          }}
+                          color="secondary"
+                          variant="contained"
+                        >
+                          Edit
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
             </TableBody>
           </Table>
         </Box>
@@ -158,7 +163,7 @@ const Results = ({ className,handleEditDrawerOpen,testimonials,...rest }) => {
         onChangeRowsPerPage={handleLimitChange}
         page={page}
         rowsPerPage={limit}
-        rowsPerPageOptions={[1,2,3, 5, 10, 25]}
+        rowsPerPageOptions={[1, 2, 3, 5, 10, 25]}
       />
     </Card>
   );

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import {
   Box,
   Container,
@@ -14,7 +14,8 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import Results from './Results';
 import AddTestimonial from './AddTestimonials';
-
+import EditTestimonials from "./EditTestimonials";
+import axios from "axios";
 
 
 const drawerWidth = "80%";
@@ -85,7 +86,9 @@ const useStyles = makeStyles((theme) => ({
 const TestimonialsList = () => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
-  const [data,setData] = useState([]);
+  const [testimonilInfo,setTestimonialInfo] = useState([]);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [currentlyEditing, setCurrentlyEditing] = useState('');
   const theme = useTheme();
 
   const handleDrawerOpen = () => {
@@ -96,6 +99,31 @@ const TestimonialsList = () => {
     setOpen(false);
   };
 
+  const handleEditDrawerOpen = () => {
+    setIsEditOpen(true);
+  };
+
+  const handleEditDrawerClose = () => {
+    setIsEditOpen(false);
+  };
+
+  const getAllTestimonials = async () => {
+   
+    await axios
+      .get('https://localhost:44312/api/Testimonials')
+      .then(res => {
+        console.log(res.data.data);
+        setTestimonialInfo(res.data.data);
+        })
+      .catch(error => {
+        console.log(error);
+      });
+  };
+
+  useEffect(()=>{
+    getAllTestimonials();
+  },[])
+
  return (
     <Page
       className={classes.root}
@@ -105,7 +133,8 @@ const TestimonialsList = () => {
       <Container maxWidth={false}>
         <Toolbar handleDrawerOpen={handleDrawerOpen} />
         <Box mt={3}>
-          <Results testimonials={data} />
+          <Results testimonials={testimonilInfo}  handleEditDrawerOpen={handleEditDrawerOpen}
+                  setCurrentlyEditing={setCurrentlyEditing}/>
         </Box>
         <Drawer
         className={classes.drawer}
@@ -123,6 +152,35 @@ const TestimonialsList = () => {
         </div>
         <AddTestimonial handleDrawerClose={handleDrawerClose} />
       </Drawer>
+
+      <Drawer
+          className={classes.drawer}
+          variant="persistent"
+          anchor="right"
+          open={isEditOpen}
+          classes={{
+            paper: classes.drawerPaper
+          }}
+        >
+          <div className={classes.drawerHeader}>
+            <IconButton onClick={handleEditDrawerClose}>
+              {theme.direction === 'rtl' ? (
+                <ChevronLeftIcon />
+              ) : (
+                <ChevronRightIcon />
+              )}
+            </IconButton>
+          </div>
+          {Boolean(isEditOpen && currentlyEditing !== '') && (
+            <EditTestimonials
+              handleEditDrawerClose={handleEditDrawerClose}
+              currentTestimonialId={currentlyEditing}
+              
+            />
+           
+          )}
+          
+        </Drawer>
       </Container>
 
     

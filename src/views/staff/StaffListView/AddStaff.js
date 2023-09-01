@@ -16,8 +16,8 @@ import {
 } from '@material-ui/core';
 import Page from 'src/components/Page';
 import { useState } from 'react';
-import { store } from 'react-notifications-component';
-import axios from "axios";
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -34,17 +34,8 @@ const useStyles = makeStyles(theme => ({
 
 const AddStaff = ({ handleDrawerClose }) => {
   const classes = useStyles();
-  const [profile,setProfile] = useState("");
-
-  const changeProfileImage = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      let reader = new FileReader();
-      reader.onload = (e) => {
-        setProfile(e.target.result);
-      };
-      reader.readAsDataURL(e.target.files[0]);
-    }
-  };
+  const [profile, setProfile] = useState('');
+  const navigate = useNavigate();
 
   return (
     <Page className={classes.root} title="Staff">
@@ -55,63 +46,68 @@ const AddStaff = ({ handleDrawerClose }) => {
         justifyContent="center"
       >
         <Container maxWidth="sm">
+         
           <Formik
             initialValues={{
-              fullName: '',
-              designation: '',
-              department: '',
-              email: '',
-              qualification: '',
-              expertise: '',
-              experience: '',
-              image: "",
-              file: ""
+              FullName: '',
+              Designation: '',
+              Department: '',
+              Email: '',
+              Qualification: '',
+              Expertise: '',
+              Experience: '',
+              Image: File,
+              Doc: File
             }}
             validationSchema={yup.object().shape({
-              fullName: yup
-              .string()
-              .required('Your First Name Is Required!')
-              .min(12, 'Your First Name Needs To Be Valid'),
+              FullName: yup
+                .string()
+                .required('Your First Name Is Required!')
+                .min(12, 'Your First Name Needs To Be Valid'),
 
-              designation: yup
-              .string()
-              .required('designation Is Required!'),
+              Designation: yup.string().required('designation Is Required!'),
 
-              department: yup
-              .string()
-              .required('department Is Required!'),
+              Department: yup.string().required('department Is Required!'),
 
-              email: yup
-              .string()
-              .email()
-              .required('Your Email Is Required!'),
+              Email: yup
+                .string()
+                .email()
+                .required('Your Email Is Required!'),
 
-              qualification: yup
-              .string()
-              .required('qualification Is Required!'),
+              Qualification: yup
+                .string()
+                .required('qualification Is Required!'),
 
-              expertise: yup
-              .string()
-              .required('expertise Is Required!'),
+              Expertise: yup.string().required('expertise Is Required!'),
 
-              experience: yup
-              .string()
-              .required('experience Is Required!'),
-             
+              Experience: yup.string().required('experience Is Required!')
             })}
-            onSubmit={async (values) => {
-              const formData = new FormData();
-              formData.append("profile", values.profile);
-              await axios.post("https://localhost:44312/api/StaffData",formData)
-              .then((res)=>{
-                console.log(res.data);
-              })
-              .catch((error)=>{
-                console.log(error);
-              })
+            onSubmit={async (values, { resetForm }) => {
+              await axios
+                .post('https://localhost:44312/api/StaffData', values)
+                .then(res => {
+                  console.log(res.data);
+                  console.log(values);
+                  resetForm();
+                  handleDrawerClose();
+                  navigate(0);
+                })
+                .catch(error => {
+                  console.log(error);
+                });
             }}
           >
-            {({ errors, handleBlur, handleSubmit, isSubmitting, handleChange,touched ,values,setFieldValue}) => (
+            {({
+              errors,
+              handleBlur,
+              handleSubmit,
+              isSubmitting,
+              handleChange,
+              touched,
+              values,
+              setFieldValue,
+              data
+            }) => (
               <form onSubmit={handleSubmit}>
                 <Box mb={3}>
                   <Typography color="textPrimary" variant="h2">
@@ -119,17 +115,17 @@ const AddStaff = ({ handleDrawerClose }) => {
                   </Typography>
                 </Box>
                 <TextField
-                 
                   fullWidth
                   label="Full Name"
                   margin="normal"
-                  name="fullName"
+                  name="FullName"
                   onBlur={handleBlur}
                   onChange={handleChange}
-                  value={values.fullName}
+                  type="string"
+                  value={values.FullName}
                   variant="outlined"
-                  error={Boolean(touched.fullName && errors.fullName)}
-                  helpertext={touched.fullName && errors.fullName}
+                  error={Boolean(touched.FullName && errors.FullName)}
+                  helperText={touched.FullName && errors.FullName}
                 />
 
                 <FormControl className={classes.formControl}>
@@ -139,11 +135,12 @@ const AddStaff = ({ handleDrawerClose }) => {
                   <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
-                    name="designation"
+                    name="Designation"
+                    type="string"
                     onChange={handleChange}
-                    value={values.designation}
-                    error={Boolean(touched.designation && errors.designation)}
-                    helpertext={touched.designation && errors.designation}
+                    value={values.Designation}
+                    error={Boolean(touched.Designation && errors.Designation)}
+                    helperText={touched.Designation && errors.Designation}
                   >
                     <MenuItem value="HOD">HOD</MenuItem>
                     <MenuItem value="Lecturer">Lecturer</MenuItem>
@@ -170,7 +167,7 @@ const AddStaff = ({ handleDrawerClose }) => {
                     </MenuItem>
                     <MenuItem value="Jr. Clerk">Jr. Clerk</MenuItem>
                   </Select>
-                 </FormControl>
+                </FormControl>
 
                 <FormControl className={classes.formControl}>
                   <InputLabel id="demo-simple-select-label">
@@ -180,10 +177,11 @@ const AddStaff = ({ handleDrawerClose }) => {
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
                     onChange={handleChange}
-                    value={values.department}
-                    name="department"
-                    error={Boolean(touched.department && errors.department)}
-                    helpertext={touched.department && errors.department}
+                    value={values.Department}
+                    name="Department"
+                    type="string"
+                    error={Boolean(touched.Department && errors.Department)}
+                    helperText={touched.Department && errors.Department}
                   >
                     <MenuItem value="Computer Science">
                       Computer Science
@@ -201,95 +199,115 @@ const AddStaff = ({ handleDrawerClose }) => {
                 </FormControl>
 
                 <TextField
-                 
                   fullWidth
-                 
                   label="Email"
                   margin="normal"
-                  name="email"
+                  name="Email"
                   onBlur={handleBlur}
                   type="email"
                   onChange={handleChange}
-                  value={values.email}
+                  value={values.Email}
                   variant="outlined"
-                  error={Boolean(touched.email && errors.email)}
-                  helpertext={touched.email && errors.email}
+                  error={Boolean(touched.Email && errors.Email)}
+                  helperText={touched.Email && errors.Email}
                 />
                 <TextField
-                 
                   fullWidth
-                 
+                  type="string"
                   label="Qualification"
                   margin="normal"
-                  name="qualification"
+                  name="Qualification"
                   onBlur={handleBlur}
                   onChange={handleChange}
-                  value={values.qualification}
+                  value={values.Qualification}
                   variant="outlined"
-                  error={Boolean(touched.qualification && errors.qualification)}
-                  helpertext={touched.qualification && errors.qualification}
+                  error={Boolean(touched.Qualification && errors.Qualification)}
+                  helperText={touched.Qualification && errors.Qualification}
                 />
                 <TextField
-                
                   fullWidth
-                
+                  type="string"
                   label="Area Of Expertise"
                   margin="normal"
-                  name="expertise"
+                  name="Expertise"
                   onBlur={handleBlur}
                   onChange={handleChange}
-                  value={values.expertise}
+                  value={values.Expertise}
                   variant="outlined"
-                  error={Boolean(touched.expertise && errors.expertise)}
-                  helpertext={touched.expertise && errors.expertise}
+                  error={Boolean(touched.Expertise && errors.Expertise)}
+                  helperText={touched.Expertise && errors.Expertise}
                 />
                 <TextField
-                 
                   fullWidth
-                 
+                  type="string"
                   label="Experience"
                   margin="normal"
-                  name="experience"
+                  name="Experience"
                   onBlur={handleBlur}
                   onChange={handleChange}
-                  value={values.experience}
+                  value={values.Experience}
                   variant="outlined"
-                  error={Boolean(touched.experience && errors.experience)}
-                  helpertext={touched.experience && errors.experience}
+                  error={Boolean(touched.Experience && errors.Experience)}
+                  helperText={touched.Experience && errors.Experience}
                 />
 
                 <Typography color="textPrimary" variant="h4">
                   Image:
                 </Typography>
                 <TextField
-                
                   fullWidth
-              
                   margin="normal"
-                  name="image"
-                  onBlur={handleBlur}
-                  onChange={changeProfileImage}
-                  type="file"
                   variant="outlined"
-                 
-                  error={Boolean(touched.image && errors.image)}
-                  helpertext={touched.image && errors.image}
+                  type="file"
+                  name="Image"
+                  accept="image/*"
+                  onChange={e => {
+                    const fileReader = new FileReader();
+                    fileReader.onload = () => {
+                      if (fileReader.readyState === 2) {
+                        setFieldValue('Image', fileReader.result);
+                        setProfile(fileReader.result);
+                      }
+                    };
+                    fileReader.readAsDataURL(e.target.files[0]);
+                  }}
+                  error={Boolean(touched.Image && errors.Image)}
+                  helperText={touched.Image && errors.Image}
                 />
+
+                <img
+                  src={profile}
+                  alt="Profile Picture"
+                  style={{
+                    width: '100px',
+                    height: '100px',
+                    border: '1px solid #000'
+                  }}
+                />
+
                 <Typography color="textPrimary" variant="h4">
                   File:
                 </Typography>
                 <TextField
-                
                   fullWidth
-                
                   margin="normal"
-                  name="file"
+                  name="Doc"
                   onBlur={handleBlur}
-                  onChange={handleChange}
+                  onChange={e => {
+                    const fileReader = new FileReader();
+                    
+                    fileReader.onload = () => {
+                      if (fileReader.readyState === 2) {
+                        setFieldValue('Doc', fileReader.result);
+                      }
+                      
+                    };
+                    fileReader.readAsDataURL(e.target.files[0]);
+                  }}
                   type="file"
                   variant="outlined"
-                  error={Boolean(touched.file && errors.file)}
-                  helpertext={touched.file && errors.file}
+                  error={Boolean(touched.Doc && errors.Doc)}
+                  helperText={touched.Doc && errors.Doc}
                 />
                 <Box my={2}>
                   <Button

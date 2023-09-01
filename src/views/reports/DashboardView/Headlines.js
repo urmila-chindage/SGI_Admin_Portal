@@ -8,23 +8,60 @@ import {
     TextField
   } from '@material-ui/core';
   import React from 'react';
-  import { useState } from 'react';
-
+  import { useState,useEffect } from 'react';
+  import { useNavigate } from 'react-router-dom';
+  import { NotificationManager } from 'react-notifications';
   import clsx from 'clsx';
-  import { useEffect } from 'react';
+  import axios from "axios";
  
   
   const Headline = ({ className, ...rest }) => {
     const useStyles = makeStyles(theme => ({
       root: {
-        height: '100%'
+        height: '100%',
+        padding: '15px'
       }
     }));
   
-    const [data, setData] = useState({
+    const [headlineInfo, setHeadlineInfo] = useState({
       headline: ''
     });
-    const classes = useStyles();
+    const navigate = useNavigate();
+    
+
+     const classes = useStyles();
+
+    const getHeadline = async () =>{
+        await axios.get("https://localhost:44312/api/Marquee")
+        .then((res)=>{
+          console.log(res.data.data);
+          let headlineData = res.data.data;
+          setHeadlineInfo(headlineData[headlineData.length-1]);
+         
+        })
+        .catch((error)=>{
+          console.log(error)
+        })
+    }
+
+    const setHeadline = async() =>{
+      const payload = {
+        Data : headlineInfo.headline
+      }
+      await axios.post("https://localhost:44312/api/Marquee",payload)
+      .then((res)=>{
+        console.log(res.data)
+        navigate('/');
+        NotificationManager.success('HeadLine Data is Set!', 'Successful!', 2000);
+      })
+      .catch((error)=>{
+        console.log(error);
+      })
+    }
+
+    useEffect(()=>{
+      getHeadline();
+    },[])
   
     return (
       <Card className={clsx(classes.root, className)} {...rest}>
@@ -34,11 +71,11 @@ import {
           fullWidth
           label="Enter headline"
           margin="normal"
-          name="this year"
+          name="headline"
           onChange={e => {
-            setData({ ...data, headline: e.target.value });
+            setHeadlineInfo({ ...headlineInfo, headline: e.target.value });
           }}
-          value={data.headline}
+          value={headlineInfo.headline}
           variant="outlined"
           multiline={true}
           rows={7}
@@ -50,7 +87,7 @@ import {
             size="large"
             type="submit"
             variant="contained"
-           
+            onClick={()=>setHeadline()}
           >
             Set
           </Button>

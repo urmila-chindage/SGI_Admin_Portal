@@ -11,8 +11,11 @@ import {
 } from '@material-ui/core';
 import Page from 'src/components/Page';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import "../Testimonials/Testimonials.css";
+
+
 
 
 const useStyles = makeStyles(theme => ({
@@ -31,24 +34,10 @@ const useStyles = makeStyles(theme => ({
 const AddTestimonial = ({ handleDrawerClose }) => {
   const classes = useStyles();
 
-  const [Name,setName] = useState("");
-  const [Desc,setDesc] = useState("");
-  const [Image,SetImage] = useState(""); 
+ const [avatarPreview, setAvatarPreview] = useState("");
+ const navigate = useNavigate();
 
-  const changeProfileImage = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      let reader = new FileReader();
-      reader.onload = (e) => {
-         SetImage(e.target.result);
-      };
-      reader.readAsDataURL(e.target.files[0]);
-    }
-  };
- 
-
-  
-
-  return (
+ return (
     <Page className={classes.root} title="Testimonials">
       <Box
         display="flex"
@@ -57,6 +46,7 @@ const AddTestimonial = ({ handleDrawerClose }) => {
         justifyContent="center"
       >
         <Container maxWidth="sm">
+      
           <Formik
             initialValues={{
               Name: "",
@@ -67,36 +57,35 @@ const AddTestimonial = ({ handleDrawerClose }) => {
               Name: yup
               .string()
               .required('Your Name is Required!'),
-             
 
-              Desc: yup
+               Desc: yup
               .string()
               .required('Description is Required!')
               .min(12, 'Your Description Needs To Be Valid'),
 
               Image: yup
-              .string()
+              .mixed()
               .required('Image is Required!'),
             })}
            
-            onSubmit={async () => {
-              const payload = {
-                Name:Name,
-                Desc:Desc,
-                Image:Image
-              }
-              await axios.post("https://localhost:44312/api/Testimonials",payload)
+            onSubmit={async (values,{resetForm }) => {
+             
+              await axios.post("https://localhost:44312/api/Testimonials",values)
               .then((res)=>{
                 console.log(res.data);
-              
+                console.log(values);
                
+                 resetForm()
+                  handleDrawerClose();
+                  navigate(0);
               })
+              
               .catch((error)=>{
-                console.log(error);
+                console.log(error)
               })
             }}
           >
-            {({ errors, handleBlur, handleSubmit, isSubmitting, touched ,data,payload }) => (
+            {({ errors, handleBlur, handleSubmit, isSubmitting,touched,handleChange,setFieldValue,values }) => (
               <form onSubmit={handleSubmit}>
               
                 <Box mb={3}>
@@ -107,47 +96,58 @@ const AddTestimonial = ({ handleDrawerClose }) => {
 
               
                 <TextField
-                  
+                  type="string"
                   fullWidth
-                 
                   label="Name"
                   margin="normal"
                   name="Name"
                   onBlur={handleBlur}
-                  onChange={e=>setName(e.target.value)}
-                  value={Name}
+                  onChange={handleChange}
+                  value={values.Name}
                   variant="outlined"
-                 
+                  error={Boolean(touched.Name && errors.Name)}
+                  helperText={touched.Name && errors.Name}
                 />
                
                 <TextField
-                
                  fullWidth
-              
+                 type="string"
                   label="Message"
                   margin="normal"
                   name="Desc"
                   onBlur={handleBlur}
-                  onChange={e=>setDesc(e.target.value)}
-                  value={Desc}
+                  onChange={handleChange}
+                  value={values.Desc}
                   variant="outlined"
                   multiline
                   rows={6}
-                  
+                  error={Boolean(touched.Desc && errors.Desc)}
+                  helperText={touched.Desc && errors.Desc}
                 />
+
                 <Typography color="textPrimary" variant="h4">
                   Image:
                 </Typography>
                 
-                <input
+                <TextField
                    type="file"
                    name="Image"
                    accept="image/*"
-                   onChange={changeProfileImage}
-                   required
+                   onChange={(e) => {
+                    const fileReader = new FileReader();
+                    fileReader.onload = () => {
+                      if (fileReader.readyState === 2) {
+                        setFieldValue('Image', fileReader.result);
+                        setAvatarPreview(fileReader.result);
+                      }
+                    };
+                    fileReader.readAsDataURL(e.target.files[0]);
+                  }}
+                  error={Boolean(touched.Image && errors.Image)}
+                  helperText={touched.Image && errors.Image}
                  />
               
-                 <img className="profileImage" src={Image} alt=""/>
+                 <img className="profileImage" src={avatarPreview} alt=""/>
                  
                 <Box my={2}>
                   <Button

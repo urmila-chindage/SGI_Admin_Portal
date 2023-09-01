@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
-import { store } from 'react-notifications-component';
+
 import {
   Box,
   Button,
@@ -69,21 +69,7 @@ const LoginView = () => {
                 })
               
                 .catch(err => {
-                  store.addNotification({
-                    title: 'Login Failed!',
-                    message: err.message,
-                    type: 'danger',
-                    insert: 'top',
-                    container: 'bottom-right',
-                    animationIn: ['animate__animated', 'animate__fadeIn'],
-                    animationOut: ['animate__animated', 'animate__fadeOut'],
-                    dismiss: {
-                      duration: 6000,
-                      onScreen: true,
-                      showIcon: true,
-                      click: false
-                    }
-                  });
+                 
                 setIsDisabled(false);
                 })
             }}

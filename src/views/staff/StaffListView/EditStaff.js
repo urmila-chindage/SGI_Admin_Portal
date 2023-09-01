@@ -14,7 +14,8 @@ import {
 } from '@material-ui/core';
 import Page from 'src/components/Page';
 import { useState } from 'react';
-import { store } from 'react-notifications-component';
+import axios from 'axios';
+import { Fullscreen } from '@material-ui/icons';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -31,20 +32,45 @@ const useStyles = makeStyles(theme => ({
 
 const EditStaff = ({ handleEditDrawerClose, currentStaffId }) => {
   const classes = useStyles();
-  const [data, setData] = useState({
-    fullName: '',
-    designation: '',
-    department: '',
-    email: '',
-    qualification: '',
-    expertise: '',
-    experience: '',
-    imageDownloadUrl: '',
-    resumeDownloadUrl: ''
+  const [profile,setProfile] = useState("");
+  const [staff, setStaff] = useState({
+    FullName: '',
+    Designation: '',
+    Department: '',
+    Email: '',
+    Qualification: '',
+    Expertise: '',
+    Experience: '',
+    Image: '',
+    Doc: ''
   });
   const [currentFileName, setCurrentFileName] = useState('');
   const [isFiles, setIsFiles] = useState(false);
-  
+
+  const handleInput= (e)=>{
+    setStaff({...staff, [e.target.name]:e.target.value});
+}
+
+  const getStaffRecord = async () =>{
+    await axios
+    .get(`https://localhost:44312/api/StaffData/StaffId?StaffId=${currentStaffId}`)
+    .then(res => {
+      console.log('Record is edited', res.data.data);
+      console.log(currentStaffId)
+      setStaff(res.data.data);
+    })
+    .catch(error => {
+      if(!error){
+        handleEditDrawerClose();
+      }
+     
+      console.log(error);
+    });
+  }
+
+  useEffect(()=>{
+    getStaffRecord();
+  },[currentStaffId])
 
   return (
     <Page className={classes.root} title="Staff">
@@ -57,20 +83,40 @@ const EditStaff = ({ handleEditDrawerClose, currentStaffId }) => {
         <Container maxWidth="sm">
           <Formik
             initialValues={{
-              fullName: '',
-              designation: '',
-              department: '',
-              email: '',
-              qualification: '',
-              expertise: '',
-              experience: ''
+              FullName: '',
+              Designation: '',
+              Department: '',
+              Email: '',
+              Qualification: '',
+              Expertise: '',
+              Experience: '',
+              Image: '',
+              Doc: ''
             }}
-            onSubmit={async () => {
-              console.log("Data Added");
-            
+            onSubmit={async ({resetForm} ) => {
+              //let staff = {FullName,Designation,Department,Email,Qualification,Expertise,Experience,Image,Doc}
+              let staffData1 = {
+                FullName : staff.FullName,
+                Designation : staff.Designation,
+                Department : staff.Department,
+                Email : staff.Email,
+                Qualification : staff.Qualification,
+                Expertise : staff.Expertise,
+                Experience : staff.Experience,
+                Image : staff.Image,
+                Doc : staff.Doc
+              }
+              await axios.put(`https://localhost:44312/api/StaffData/${currentStaffId}`,staffData1)
+              .then((res)=>{
+                console.log(res)
+               
+              })
+              .catch((error)=>{
+                console.log(error);
+              })
             }}
           >
-            {({ errors, handleBlur, handleSubmit, isSubmitting, touched }) => (
+            {({ errors, handleBlur, handleSubmit, isSubmitting, touched ,setFieldValue}) => (
               <form onSubmit={handleSubmit}>
                 <Box mb={3}>
                   <Typography color="textPrimary" variant="h2">
@@ -78,17 +124,17 @@ const EditStaff = ({ handleEditDrawerClose, currentStaffId }) => {
                   </Typography>
                 </Box>
                 <TextField
-                  error={Boolean(touched.fullName && errors.fullName)}
+                  error={Boolean(touched.FullName && errors.FullName)}
                   fullWidth
-                  helperText={touched.fullName && errors.fullName}
+                  helperText={touched.FullName && errors.FullName}
                   label="Full Name"
                   margin="normal"
-                  name="title"
+                  name="FullName"
                   onBlur={handleBlur}
                   onChange={e => {
-                    setData({ ...data, fullName: e.target.value });
+                    setStaff({ ...staff, FullName: e.target.value });
                   }}
-                  value={data.fullName}
+                  value={staff.FullName}
                   variant="outlined"
                 />
                 <FormControl className={classes.formControl}>
@@ -100,9 +146,10 @@ const EditStaff = ({ handleEditDrawerClose, currentStaffId }) => {
                     id="demo-simple-select"
                     onChange={e => {
                       let val = e.target.value;
-                      setData({ ...data, designation: val });
+                      setStaff({ ...staff, Designation: val });
                     }}
-                    value={data.designation}
+                    value={staff.Designation}
+                    name="Designation"
                   >
                     <MenuItem value="HOD">HOD</MenuItem>
                     <MenuItem value="Lecturer">Lecturer</MenuItem>
@@ -139,9 +186,10 @@ const EditStaff = ({ handleEditDrawerClose, currentStaffId }) => {
                     id="demo-simple-select"
                     onChange={e => {
                       let val = e.target.value;
-                      setData({ ...data, department: val });
+                      setStaff({ ...staff, Department: val });
                     }}
-                    value={data.department}
+                    name="Department"
+                    value={staff.Department}
                   >
                     <MenuItem value="Computer Science">
                       Computer Science
@@ -158,61 +206,95 @@ const EditStaff = ({ handleEditDrawerClose, currentStaffId }) => {
                   </Select>
                 </FormControl>
                 <TextField
-                  error={Boolean(touched.email && errors.email)}
+                  error={Boolean(touched.Email && errors.Email)}
                   fullWidth
-                  helperText={touched.email && errors.email}
+                  helperText={touched.Email && errors.Email}
                   label="Email"
                   margin="normal"
                   name="Email"
                   onBlur={handleBlur}
                   type="email"
                   onChange={e => {
-                    setData({ ...data, email: e.target.value });
+                    setStaff({ ...staff, Email: e.target.value });
                   }}
-                  value={data.email}
+                  value={staff.Email}
                   variant="outlined"
                 />
                 <TextField
-                  error={Boolean(touched.qualification && errors.qualification)}
+                  error={Boolean(touched.Qualification && errors.Qualification)}
                   fullWidth
-                  helperText={touched.qualification && errors.qualification}
+                  helperText={touched.Qualification && errors.Qualification}
                   label="Qualification"
                   margin="normal"
                   name="Qualification"
                   onBlur={handleBlur}
                   onChange={e => {
-                    setData({ ...data, qualification: e.target.value });
+                    setStaff({ ...staff, Qualification: e.target.value });
                   }}
-                  value={data.qualification}
+                  value={staff.Qualification}
                   variant="outlined"
                 />
                 <TextField
-                  error={Boolean(touched.expertise && errors.expertise)}
+                  error={Boolean(touched.Expertise && errors.Expertise)}
                   fullWidth
-                  helperText={touched.expertise && errors.expertise}
+                  helperText={touched.Expertise && errors.Expertise}
                   label="Area Of Expertise"
                   margin="normal"
-                  name="Area Of Expertise"
+                  name="Expertise"
                   onBlur={handleBlur}
                   onChange={e => {
-                    setData({ ...data, expertise: e.target.value });
+                    setStaff({ ...staff, Expertise: e.target.value });
                   }}
-                  value={data.expertise}
+                  value={staff.Expertise}
                   variant="outlined"
                 />
                 <TextField
-                  error={Boolean(touched.experience && errors.experience)}
+                  error={Boolean(touched.Experience && errors.Experience)}
                   fullWidth
-                  helperText={touched.experience && errors.experience}
+                  helperText={touched.Experience && errors.Experience}
                   label="Experience"
                   margin="normal"
                   name="Experience"
                   onBlur={handleBlur}
                   onChange={e => {
-                    setData({ ...data, experience: e.target.value });
+                    setStaff({ ...staff, Experience: e.target.value });
                   }}
-                  value={data.experience}
+                  value={staff.Experience}
                   variant="outlined"
+                />
+
+                <Typography color="textPrimary" variant="h4">
+                  Image:
+                </Typography>
+                <TextField
+                   type="file"
+                   name="Image"
+                   accept="image/*"
+                   onChange={e => {
+                    setStaff({ ...staff, Image: e.target.value });
+                  }}
+                 
+                  error={Boolean(touched.Image && errors.Image)}
+                  helperText={touched.Image && errors.Image}
+                 />
+              
+                 <img className="profileImage" src={staff.Image} alt="Profile Picture"/>
+
+                 <Typography color="textPrimary" variant="h4">
+                  File:
+                </Typography>
+                <TextField
+                  fullWidth
+                  margin="normal"
+                  name="Doc"
+                  onBlur={handleBlur}
+                  onChange={e => {
+                    setStaff({ ...staff, Doc: e.target.value });
+                  }}
+                  type="file"
+                  variant="outlined"
+                  error={Boolean(touched.Doc && errors.Doc)}
+                  helperText={touched.Doc && errors.Doc}
                 />
 
                 <Box my={2}>

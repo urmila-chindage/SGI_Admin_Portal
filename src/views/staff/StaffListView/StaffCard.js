@@ -1,4 +1,5 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import {
@@ -14,8 +15,8 @@ import {
 } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import GetAppIcon from '@material-ui/icons/GetApp';
-import { store } from 'react-notifications-component';
 import EditIcon from '@material-ui/icons/Edit';
+import axios from 'axios';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -43,65 +44,76 @@ const StaffCard = ({
   const fileRef = useRef(null);
   const imageRef = useRef(null);
 
- 
+  const navigate= useNavigate();
 
- 
-  const changeImageAsync = async image => {
-    // const ref = storageRef.child('staff-picture').child(name);
-    // const snapshot = await ref.put(image);
-    // return await snapshot.ref.getDownloadURL();
-    console.log("Staff Members Added")
-  }
+  const handleFileChange = e => {
+    fileRef.current.click();
+  };
+
+  const handleImageChange = e => {
+    imageRef.current.click();
+  };
+  
+  const deleteStaffData = async id => {
+    await axios
+      .delete(`https://localhost:44312/api/StaffData?StaffId=${id}`)
+      .then(res => {
+        console.log('Record is deleted', res);
+        navigate(0)
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
 
   return (
     <Card className={clsx(classes.root, className)} {...rest}>
-      <CardContent>
+      <CardContent key={staff.StaffId}>
         <Box display="flex" justifyContent="center" mb={3}>
-          <Avatar
-            alt="Staff Image"
-            src={staff.imageDownloadUrl}
-            variant="square"
-          />
+          <Avatar alt="Staff Image" src={staff.Image} variant="square" />
         </Box>
+
         <Typography
           align="center"
           color="textPrimary"
           gutterBottom
           variant="h4"
         >
-         Urmila Sirase
+          {staff.FullName}
         </Typography>
         <Divider />
         <Typography align="center" color="textPrimary" variant="body1">
-          FrontEnd Developer
+          {staff.Designation}
         </Typography>
         <Divider />
         <Typography align="center" color="textPrimary" variant="body1">
-          urmilachindage@gmail.com
+          {staff.Department}
         </Typography>
         <Divider />
         <Typography align="center" color="textPrimary" variant="body1">
-          3
+          {staff.Email}
         </Typography>
         <Divider />
         <Typography align="center" color="textPrimary" variant="body1">
-          Development
+          {staff.Qualification}
         </Typography>
         <Divider />
         <Typography align="center" color="textPrimary" variant="body1">
-          IT
+          {staff.Expertise}
         </Typography>
         <Divider />
         <Typography align="center" color="textPrimary" variant="body1">
-         BEIT
+          {staff.Experience}
         </Typography>
       </CardContent>
+
       <Box flexGrow={1} />
       <Divider />
       <Box p={2}>
         <Grid container justify="space-between" spacing={2}>
           <Grid className={classes.statsItem} item>
-            <a href={staff.resumeDownloadUrl} target="blank">
+           
+            <a href={staff.Doc} target={staff.Doc}>
               <GetAppIcon className={classes.statsIcon} color="action" />
 
               <Typography
@@ -114,8 +126,9 @@ const StaffCard = ({
             </a>
           </Grid>
           <Grid className={classes.statsItem} item>
-            <Button>
+            <Button onClick={() => deleteStaffData(staff.StaffId)}>
               <DeleteIcon className={classes.statsIcon} color="action" />
+
               <Typography
                 color="textSecondary"
                 display="inline"
@@ -128,8 +141,8 @@ const StaffCard = ({
           <Grid className={classes.statsItem} item>
             <Button
               onClick={() => {
-                setCurrentlyEditing(staff.key);
-                console.info(staff.key);
+                setCurrentlyEditing(staff.StaffId);
+                console.info(staff.StaffId);
                 handleEditDrawerOpen();
               }}
             >
@@ -146,28 +159,22 @@ const StaffCard = ({
           <>
             <input
               type="file"
-              name="image"
+              name="Image"
               id="image"
               hidden
               ref={imageRef}
-              onChange={e => {
-                let file = e.target.files[0];
-                // console.log(file);
-                // console.log('Clicked on file');
-                changeImageAsync(file);
-              }}
+              onChange={e => e.target.files[0]}
+              
             />
-            <input
-              type="file"
-              name="file"
-              id="file"
-              hidden
-              ref={fileRef}
-            
-            />
+            <input 
+              type="file" 
+              name="Doc" 
+              id="file" 
+              hidden 
+              ref={fileRef} />
           </>
           <Grid className={classes.statsItem} item>
-            <Button>
+            <Button onClick={handleImageChange}>
               <EditIcon className={classes.statsIcon} color="action" />
               <Typography
                 color="textSecondary"
@@ -179,7 +186,7 @@ const StaffCard = ({
             </Button>
           </Grid>
           <Grid className={classes.statsItem} item>
-            <Button>
+            <Button onClick={handleFileChange}>
               <EditIcon className={classes.statsIcon} color="action" />
               <Typography
                 color="textSecondary"

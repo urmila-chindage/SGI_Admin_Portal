@@ -20,8 +20,21 @@ import {
   ShoppingBag as ShoppingBagIcon,
   User as UserIcon,
   UserPlus as UserPlusIcon,
-  Users as UsersIcon
+  Users as UsersIcon,
+  Award as AchivementIcon
 } from 'react-feather';
+
+import WorkIcon from '@material-ui/icons/Work';
+import UpdateIcon from '@material-ui/icons/Update';
+import AssignmentIndOutlinedIcon from '@material-ui/icons/AssignmentIndOutlined';
+import CalendarTodayIcon from '@material-ui/icons/CalendarToday';
+import MenuBookIcon from '@material-ui/icons/MenuBook';
+import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
+import AnnouncementIcon from '@material-ui/icons/Announcement';
+import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
+import AttachMoneyIcon from '@material-ui/icons/AttachMoney';
+import AssessmentIcon from '@material-ui/icons/Assessment';
+import MailIcon from '@material-ui/icons/Mail';
 import NavItem from './NavItem';
 import axios from "axios";
 
@@ -49,9 +62,64 @@ const items = [
     title: 'Testimonials'
   },
   {
+    href: '/app/updates',
+    icon: UpdateIcon,
+    title: 'Updates'
+  },
+  {
     href: '/app/staff',
     icon: UsersIcon,
     title: 'Staff'
+  },
+  {
+    href: '/app/achivements',
+    icon: AchivementIcon,
+    title: 'Achivements'
+  },
+  {
+    href: '/app/activities',
+    icon: WorkIcon,
+    title: 'Activity'
+  },
+  {
+    href: '/app/academicCalender',
+    icon: CalendarTodayIcon,
+    title: 'Academic Calendar'
+  },
+  {
+    href: '/app/publication',
+    icon: MenuBookIcon,
+    title: 'Publication'
+  },
+  {
+    href: '/app/committee',
+    icon: SupervisedUserCircleIcon,
+    title: 'Committee'
+  },
+  {
+    href: '/app/news',
+    icon: AnnouncementIcon,
+    title: 'News'
+  },
+  {
+    href: '/app/library',
+    icon: LibraryBooksIcon,
+    title: 'Library'
+  },
+  {
+    href: '/app/placement',
+    icon: AttachMoneyIcon,
+    title: 'Placement'
+  },
+  {
+    href: '/app/resultnletter',
+    icon: AssessmentIcon,
+    title: 'Result & Letter'
+  },
+  {
+    href: '/app/email',
+    icon: MailIcon,
+    title: 'Email'
   },
   {
     href: '/app/settings',
