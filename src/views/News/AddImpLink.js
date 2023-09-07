@@ -12,6 +12,9 @@ import {
 } from '@material-ui/core';
 import Page from 'src/components/Page';
 import { useState } from 'react';
+import axios from "axios";
+import { useNavigate } from 'react-router-dom';
+import { NotificationManager } from 'react-notifications';
 
 
 const useStyles = makeStyles(theme => ({
@@ -29,19 +32,15 @@ const useStyles = makeStyles(theme => ({
 
 const AddImpLink = ({ handleDrawerClose }) => {
   const classes = useStyles();
+  const navigate = useNavigate();
+
   const [data, setData] = useState({
     content: '',
     file: null,
-    isFiles: false
+    isFiles: true
   });
-
-  const uploadFileAsync = async (file, storageRef, name) => {
-    const ref = storageRef.child('impLinks').child(name);
-    const snapshot = await ref.put(file);
-    return await snapshot.ref.getDownloadURL();
-  };
-
-  return (
+  
+ return (
     <Page className={classes.root} content="News">
       <Box
         display="flex"
@@ -53,10 +52,24 @@ const AddImpLink = ({ handleDrawerClose }) => {
           <Formik
             initialValues={{
               content: '',
-              file: null
+              file: null,
             }}
             onSubmit={async () => {
-              console.log("Submited")
+             const payload = {
+              HtmlContent : data.content,
+              File : data.file,
+              IsFile : data.isFiles
+             }
+             await axios.post("https://localhost:44312/api/ImportantLink",payload)
+             .then((res)=>{
+                  console.log(res.data)
+                  handleDrawerClose();
+                  NotificationManager.success('Important link Data Added', 'Successful!', 2000);
+                  navigate(0);
+             })
+             .catch((error)=>{
+                console.log(error);
+             })
             }}
           >
             {({ errors, handleBlur, handleSubmit, isSubmitting, touched }) => (
@@ -103,7 +116,13 @@ const AddImpLink = ({ handleDrawerClose }) => {
                       name="file"
                       onBlur={handleBlur}
                       onChange={e => {
-                        setData({ ...data, file: e.target.files[0] });
+                        const fileReader = new FileReader();
+                        fileReader.onload = () => {
+                          if (fileReader.readyState === 2) {
+                            setData({...data,file:fileReader.result})
+                          }
+                        };
+                        fileReader.readAsDataURL(e.target.files[0]);
                       }}
                       type="file"
                       variant="outlined"

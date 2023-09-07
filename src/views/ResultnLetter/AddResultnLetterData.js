@@ -15,6 +15,9 @@ import {
 } from '@material-ui/core';
 import Page from 'src/components/Page';
 import { useState } from 'react';
+import axios from "axios";
+import { useNavigate } from 'react-router-dom';
+import { NotificationManager } from 'react-notifications';
 
 
 const useStyles = makeStyles(theme => ({
@@ -32,20 +35,7 @@ const useStyles = makeStyles(theme => ({
 
 const AddResultnLetterData = ({ handleDrawerClose }) => {
   const classes = useStyles();
-  const [data, setData] = useState({
-    description: '',
-    title: '',
-    sem: '',
-    level: '',
-    file: undefined,
-    category: ''
-  });
-
-  const uploadFileAsync = async (file, storageRef, name) => {
-    const ref = storageRef.child(name);
-    const snapshot = await ref.put(file);
-    return await snapshot.ref.getDownloadURL();
-  };
+  const navigate = useNavigate();
 
   return (
     <Page className={classes.root} title="Calendar">
@@ -60,16 +50,28 @@ const AddResultnLetterData = ({ handleDrawerClose }) => {
             initialValues={{
               description: '',
               title: '',
-              sem: '',
+              semester: '',
               level: '',
               file: '',
               category: ''
             }}
-            onSubmit={async () => {
-             console.log("Submited");
+            onSubmit={async (values, { resetForm }) => {
+              await axios
+              .post('https://localhost:44312/api/ResultnLetter', values)
+                .then(res => {
+                  console.log(res.data);
+                  console.log(values);
+                  resetForm();
+                  handleDrawerClose();
+                  NotificationManager.success('Upadate Data Added', 'Successful!', 2000);
+                  navigate(0);
+                })
+                .catch(error => {
+                  console.log(error);
+                });
             }}
           >
-            {({ errors, handleBlur, handleSubmit, isSubmitting, touched }) => (
+            {({ errors, handleBlur, handleSubmit, isSubmitting, touched,handleChange,values,setFieldValue }) => (
               <form onSubmit={handleSubmit}>
                 <Box mb={3}>
                   <Typography color="textPrimary" variant="h2">
@@ -84,10 +86,8 @@ const AddResultnLetterData = ({ handleDrawerClose }) => {
                   margin="normal"
                   name="title"
                   onBlur={handleBlur}
-                  onChange={e => {
-                    setData({ ...data, title: e.target.value });
-                  }}
-                  value={data.title}
+                  onChange={handleChange}
+                  value={values.title}
                   variant="outlined"
                 />
                 <TextField
@@ -98,10 +98,8 @@ const AddResultnLetterData = ({ handleDrawerClose }) => {
                   margin="normal"
                   name="description"
                   onBlur={handleBlur}
-                  onChange={e => {
-                    setData({ ...data, description: e.target.value });
-                  }}
-                  value={data.description}
+                  onChange={handleChange}
+                  value={values.description}
                   variant="outlined"
                   multiline={true}
                   rows={3}
@@ -111,11 +109,9 @@ const AddResultnLetterData = ({ handleDrawerClose }) => {
                   <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
-                    onChange={e => {
-                      let val = e.target.value;
-                      setData({ ...data, level: val });
-                    }}
-                    value={data.level}
+                    name="level"
+                    onChange={handleChange}
+                    value={values.level}
                   >
                     <MenuItem value="MSBTE">MSBTE</MenuItem>
                     <MenuItem value="Institute">Institute</MenuItem>
@@ -127,11 +123,9 @@ const AddResultnLetterData = ({ handleDrawerClose }) => {
                   <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
-                    onChange={e => {
-                      let val = e.target.value;
-                      setData({ ...data, sem: val });
-                    }}
-                    value={data.sem}
+                    name="semester"
+                    onChange={handleChange}
+                    value={values.semester}
                   >
                     <MenuItem value="Odd">Odd</MenuItem>
                     <MenuItem value="Even">Even</MenuItem>
@@ -144,11 +138,9 @@ const AddResultnLetterData = ({ handleDrawerClose }) => {
                   <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
-                    onChange={e => {
-                      let val = e.target.value;
-                      setData({ ...data, category: val });
-                    }}
-                    value={data.category}
+                    name="category"
+                    onChange={handleChange}
+                    value={values.category}
                   >
                     <MenuItem value="Result">Result</MenuItem>
                     <MenuItem value="Letter">News Letter</MenuItem>
@@ -165,7 +157,13 @@ const AddResultnLetterData = ({ handleDrawerClose }) => {
                   name="file"
                   onBlur={handleBlur}
                   onChange={e => {
-                    setData({ ...data, file: e.target.files[0] });
+                    const fileReader = new FileReader();
+                    fileReader.onload = () => {
+                      if (fileReader.readyState === 2) {
+                        setFieldValue('file', fileReader.result);
+                     }
+                    };
+                    fileReader.readAsDataURL(e.target.files[0]);
                   }}
                   type="file"
                   variant="outlined"

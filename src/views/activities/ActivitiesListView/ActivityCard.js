@@ -12,6 +12,9 @@ import {
 } from '@material-ui/core';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import DeleteIcon from '@material-ui/icons/Delete';
+import axios from 'axios';
+import { NotificationManager } from 'react-notifications';
+import { useNavigate } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -33,8 +36,20 @@ const useStyles = makeStyles((theme) => ({
 
 const ActivityCard = ({ className, activity, ...rest }) => {
   const classes = useStyles();
-
+  const navigate = useNavigate();
   
+  const deleteActivityData = async id => {
+    await axios
+      .delete(`https://localhost:44312/api/Activity?ActId=${id}`)
+      .then(res => {
+        console.log('Record is deleted', res);
+        NotificationManager.success('Activity Data Deleted', 'Successful!', 2000);
+        navigate(0);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
 
 
   return (
@@ -48,7 +63,17 @@ const ActivityCard = ({ className, activity, ...rest }) => {
           justifyContent="center"
           mb={3}
         >
-          
+          {activity.File &&
+              activity.File.map((d,i) => (
+                    <a href={d} target="blank" key={i}>
+                        <img
+                        alt="Activity"
+                        src={d}
+                        className={classes.image}
+                        />
+                    </a>
+              ))
+          }
           
         </Box>
         <Typography
@@ -57,7 +82,7 @@ const ActivityCard = ({ className, activity, ...rest }) => {
           gutterBottom
           variant="h4"
         >
-          dfgfgdffg
+         {activity.Title}
         </Typography>
         <Divider />
         <Typography
@@ -65,7 +90,7 @@ const ActivityCard = ({ className, activity, ...rest }) => {
           color="textPrimary"
           variant="body1"
         >
-          ghghfggh
+         {activity.Description}
         </Typography>
         <Divider />
         <Typography
@@ -73,7 +98,7 @@ const ActivityCard = ({ className, activity, ...rest }) => {
           color="textPrimary"
           variant="body1"
         >
-          Type: {" "}gjhgjhj
+         Type: {" "}{activity.Type}
         </Typography>
         <Divider />
         <Typography
@@ -81,7 +106,7 @@ const ActivityCard = ({ className, activity, ...rest }) => {
           color="textPrimary"
           variant="body1"
         >
-          Department: {" "}ghhgj
+          Department: {" "}{activity.Department}
         </Typography>
         <Divider />
         <Typography
@@ -89,7 +114,7 @@ const ActivityCard = ({ className, activity, ...rest }) => {
           color="textPrimary"
           variant="body1"
         >
-          Duration: {" "}ytuyu
+         Duration: {" "}{activity.Duration}
         </Typography>
         <Divider />
         <Typography
@@ -97,7 +122,7 @@ const ActivityCard = ({ className, activity, ...rest }) => {
           color="textPrimary"
           variant="body1"
         >
-          Category: {" "}tytuyu
+         Category: {" "}{activity.EventFor}
         </Typography>
         <Divider />
         <Typography
@@ -105,7 +130,7 @@ const ActivityCard = ({ className, activity, ...rest }) => {
           color="textPrimary"
           variant="body1"
         >
-          Date: {" "}hgfjhgj
+         Date: {" "}{activity.DatePickerDialog}
         </Typography>
       </CardContent>
       <Box flexGrow={1} />
@@ -116,8 +141,8 @@ const ActivityCard = ({ className, activity, ...rest }) => {
           justify="space-between"
           spacing={2}
         >
-       
-          <a href="fgfgfgh" target="blank">
+        {activity.File1 && (
+          <a href={activity.File1} target={activity.File1}>
           <Grid
             className={classes.statsItem}
             item
@@ -136,9 +161,9 @@ const ActivityCard = ({ className, activity, ...rest }) => {
             </Typography>
           </Grid>
         </a>
-       
+       )}
         <Box
-       
+          onClick={() => deleteActivityData(activity.ActId)}
         >
         <Grid
             className={classes.statsItem}

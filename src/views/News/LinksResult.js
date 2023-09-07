@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import PerfectScrollbar from 'react-perfect-scrollbar';
@@ -16,7 +16,9 @@ import {
   makeStyles,
   Button
 } from '@material-ui/core';
-
+import axios from 'axios';
+import { NotificationManager } from 'react-notifications';
+import { useNavigate } from 'react-router-dom';
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -25,45 +27,13 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const LinksResult = ({ className, links, ...rest }) => {
+const LinksResult = ({ className, importantLinks, ...rest }) => {
   const classes = useStyles();
-  const [selectedLinks, setSelectedLinks] = useState([]);
+  const [linksData, setLinksData] = useState([]);
   const [limit, setLimit] = useState(5);
   const [page, setPage] = useState(0);
 
-  
-
-  const handleSelectAll = event => {
-    let newSelectedLinks;
-
-    if (event.target.checked) {
-      newSelectedLinks = links.map(update => update.key);
-    } else {
-      newSelectedLinks = [];
-    }
-
-    setSelectedLinks(newSelectedLinks);
-  };
-
-  const handleSelectOne = (event, id) => {
-    const selectedIndex = selectedLinks.indexOf(id);
-    let newSelectedLinks = [];
-
-    if (selectedIndex === -1) {
-      newSelectedLinks = newSelectedLinks.concat(selectedLinks, id);
-    } else if (selectedIndex === 0) {
-      newSelectedLinks = newSelectedLinks.concat(selectedLinks.slice(1));
-    } else if (selectedIndex === selectedLinks.length - 1) {
-      newSelectedLinks = newSelectedLinks.concat(selectedLinks.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelectedLinks = newSelectedLinks.concat(
-        selectedLinks.slice(0, selectedIndex),
-        selectedLinks.slice(selectedIndex + 1)
-      );
-    }
-
-    setSelectedLinks(newSelectedLinks);
-  };
+  const navigate = useNavigate();
 
   const handleLimitChange = event => {
     setLimit(event.target.value);
@@ -73,74 +43,88 @@ const LinksResult = ({ className, links, ...rest }) => {
     setPage(newPage);
   };
 
-  const convertTimestampToDate = tmstp => {
-    let d = new Date(tmstp);
-    let date = d.getDate() + '/' + (d.getMonth() + 1) + '/' + d.getFullYear();
-    return date;
+  const deleteImportantLinksData = async id => {
+    await axios
+      .delete(`https://localhost:44312/api/ImportantLink?ILId=${id}`)
+      .then(res => {
+        console.log('Record is deleted', res);
+        NotificationManager.success(
+          'Important Links Data Deleted',
+          'Successful!',
+          2000
+        );
+        navigate(0);
+      })
+      .catch(error => {
+        console.log(error);
+      });
   };
+
+  useEffect(() => {}, [linksData]);
 
   return (
     <Card className={clsx(classes.root, className)} {...rest}>
-      <Button
-        color="secondary"
-        variant="contained"
-       
-      >
-        Delete Selected
-      </Button>
       <PerfectScrollbar>
         <Box minWidth={1050}>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell padding="checkbox">
-                 
-                </TableCell>
                 <TableCell>Content</TableCell>
                 <TableCell>Raw</TableCell>
                 <TableCell>File</TableCell>
                 <TableCell>Posted On</TableCell>
+                <TableCell>Action</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-             
-                  <TableRow
-                    hover
-                   
-                  >
-                    <TableCell padding="checkbox">
-                      <Checkbox
-                       
-                        value="true"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Box
-                        alignItems="center"
-                        display="flex"
-                      
-                      ></Box>
-                    </TableCell>
-                    <TableCell>
-                      <Box alignItems="center" display="flex">
-                       hgjhjh
-                      </Box>
-                    </TableCell>
-                    <TableCell>
-                     ttyhgjghj
-                    </TableCell>
-                    <TableCell>
-                    ghgjhjh
-                    </TableCell>
-                  </TableRow>
-              
+              {importantLinks
+                .slice(page * limit, page * limit + limit)
+                .map(links => {
+                  return (
+                    <TableRow hover key={links.ILId}>
+                      <TableCell>
+                        <Box
+                          alignItems="center"
+                          display="flex"
+                          dangerouslySetInnerHTML={{ __html: links.HtmlContent }}
+                        ></Box>
+                      </TableCell>
+                      <TableCell>
+                        <Box alignItems="center" display="flex">
+                          {links.HtmlContent}
+                        </Box>
+                      </TableCell>
+                      <TableCell>
+                        {links.IsFile ? (
+                          <a href={links.File} target="blank">
+                            Open File
+                          </a>
+                        ) : (
+                          'No File'
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {links.CreatedDate}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          color="secondary"
+                          variant="contained"
+                          onClick={() => deleteImportantLinksData(links.ILId)}
+                        >
+                          Delete
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
             </TableBody>
           </Table>
         </Box>
       </PerfectScrollbar>
       <TablePagination
         component="div"
-        count={links.length}
+        count={importantLinks.length}
         onChangePage={handlePageChange}
         onChangeRowsPerPage={handleLimitChange}
         page={page}

@@ -14,6 +14,7 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import Results from './Results';
 import AddResultnLetterData from './AddResultnLetterData';
+import axios from "axios";
 
 const drawerWidth = '80%';
 
@@ -95,13 +96,44 @@ const ResultnLetter = () => {
     setOpen(false);
   };
 
+  const getAllResultData = async () => {
+    await axios
+      .get('https://localhost:44312/api/ResultnLetter')
+      .then(res => {
+        console.log(res.data.data);
+        let categoryData = res.data.data;
+        let resultData = [];
+        let letterData = [];
+       
+        categoryData.map((item,i)=>{
+          if(item.Category==="Result"){
+            resultData.push(item);
+          }
+          if(item.Category==="Letter"){
+            letterData.push(item);
+          }
+          
+        })
+        setResults(resultData);
+        setLetter(letterData);
+        
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
+
+  useEffect(() => {
+    getAllResultData();
+  }, []);
+
   return (
     <Page className={classes.root} title="Academic Calendar">
       <Container maxWidth={false}>
         <Toolbar handleDrawerOpen={handleDrawerOpen} />
         <Box mt={3}>
-          <Results items={results} />
-          <Results items={letter} />
+          <Results resultnLetter={results} style={{marginBottom:"10px"}}/>
+          <Results resultnLetter={letter} />
         </Box>
         <Drawer
           className={classes.drawer}
@@ -122,24 +154,7 @@ const ResultnLetter = () => {
             </IconButton>
           </div>
           <AddResultnLetterData handleDrawerClose={handleDrawerClose} />
-          {/* <Divider />
-        <List>
-          {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-            <ListItem button key={text}>
-              <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItem>
-          ))}
-        </List>
-        <Divider />
-        <List>
-          {['All mail', 'Trash', 'Spam'].map((text, index) => (
-            <ListItem button key={text}>
-              <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItem>
-          ))}
-        </List> */}
+         
         </Drawer>
       </Container>
     </Page>

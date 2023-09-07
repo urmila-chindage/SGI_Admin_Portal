@@ -122,8 +122,21 @@ const NewsList = () => {
       });
   };
 
+  const getAllLinksData = async () => {
+    await axios
+      .get('https://localhost:44312/api/ImportantLink')
+      .then(res => {
+        console.log(res.data.data);
+        setLinks(res.data.data);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
+
   useEffect(()=>{
     getAllNewsData();
+    getAllLinksData();
   },[])
  
 
@@ -144,7 +157,7 @@ const NewsList = () => {
           <Typography color="textPrimary" variant="h2">
             Important Links
           </Typography>
-          <LinksResult links={links} />
+          <LinksResult importantLinks={links} />
         </Box>
         
         <Drawer

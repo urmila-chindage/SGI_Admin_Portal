@@ -15,6 +15,7 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ActivityCard from './ActivityCard';
 import AddActivity from './AddActivities';
+import axios from "axios";
 
 const drawerWidth = '80%';
 
@@ -81,8 +82,7 @@ const useStyles = makeStyles(theme => ({
 const ActivitiesListView = () => {
   const classes = useStyles();
   const theme = useTheme();
-  const [dataWithFiles, setDataWithFiles] = useState([]);
-  const [dataWithoutFiles, setDataWithoutFiles] = useState([]);
+  const [activityData,setActivityData] = useState([]);
   const [open, setOpen] = useState(false);
 
   const handleDrawerOpen = () => {
@@ -93,20 +93,34 @@ const ActivitiesListView = () => {
     setOpen(false);
   };
 
-  
+  const getAllActivityData = async () => {
+    await axios
+      .get('https://localhost:44312/api/Activity')
+      .then(res => {
+        console.log(res.data.data);
+        setActivityData(res.data.data);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
 
-    
+  useEffect(() => {
+    getAllActivityData();
+  }, []);
 
-  return (
+ return (
     <Page className={classes.root} title="Activities">
       <Container maxWidth={false}>
         <Toolbar handleDrawerOpen={handleDrawerOpen} />
         <Box mt={3}>
-         
-            <ActivityCard activity="fgfgg"  />
-          
-        
-            <ActivityCard activity="fgffgfh" />
+         <Grid container spacing={3}>
+         {activityData.map((d, i) => (
+            <Grid item key={d.ActId} lg={4} md={6} xs={12}>
+                <ActivityCard activity={d} />
+            </Grid>
+          ))}
+          </Grid>
           
         </Box>
         <Drawer

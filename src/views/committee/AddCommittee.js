@@ -11,6 +11,7 @@ import {
 } from '@material-ui/core';
 import Page from 'src/components/Page';
 import { useState } from 'react';
+import axios from "axios";
 var _ = require('lodash');
 
 
@@ -67,7 +68,28 @@ const AddCommittee = ({handleDrawerClose}) => {
               committeeMembers: []
             }}
             onSubmit={async () => {
-                console.log("commitee Members")
+                const payload = {
+                  CYear : data.year,
+                  CName : data.committeeName,
+                  committeeMembers : [
+                    {
+                      MemberName : data.committeeMembers.name,
+                     
+                    },
+                    {
+                      Designation : data.committeeMembers.designation
+                    }
+                   
+                  ]
+                }
+
+                await axios.post("https://localhost:44312/api/Committee",payload)
+                .then((res)=>{
+                  console.log(res.data);
+                })
+                .catch((error)=>{
+                  console.log(error)
+                })
             }}
           >
             {({              
@@ -153,8 +175,9 @@ const AddCommittee = ({handleDrawerClose}) => {
               margin="normal"
               name="name"
               onChange={(e) => {
-                
-                setData({...data, committeeMembers: e.target.value});
+                let members = data.committeeMembers
+                members[i]["name"] = e.target.value
+                setData({...data, committeeMembers: members});
               }}
               value={data.committeeMembers.name}
               variant="outlined"

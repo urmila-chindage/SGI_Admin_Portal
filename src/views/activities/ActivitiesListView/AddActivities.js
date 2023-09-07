@@ -16,6 +16,9 @@ import {
 } from '@material-ui/core';
 import Page from 'src/components/Page';
 import { useState } from 'react';
+import axios from 'axios';
+import { NotificationManager } from 'react-notifications';
+import { useNavigate } from 'react-router-dom';
 import {
   KeyboardDatePicker,
   MuiPickersUtilsProvider
@@ -39,7 +42,7 @@ const useStyles = makeStyles(theme => ({
 const AddActivity = ({ handleDrawerClose }) => {
   const classes = useStyles();
   const [images, setImages] = useState([]);
-  const [imagesPreview, setImagesPreview] = useState([]);
+  const navigate = useNavigate();
 
   const [data, setData] = useState({
     title: '',
@@ -50,28 +53,34 @@ const AddActivity = ({ handleDrawerClose }) => {
     isFiles: true,
     duration: '',
     type: '',
-    file: File,
-    images: []
+    file: File
   });
 
   const [inputCount, setInputCount] = useState({
     count: 1
   });
 
-  const uploadMultipleFiles = e => {
-    const files = Array.from(e.target.files);
-    setImages([]);
-    setImagesPreview([]);
-    files.forEach(file => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (reader.readyState === 2) {
-          setImagesPreview([...images, reader.result]);
-          setImages([...images, reader.result]);
-        }
+  const fileBase64 = img => {
+    return new Promise((resolve, reject) => {
+      let fileReader = new FileReader();
+      fileReader.onerror = reject;
+      fileReader.onload = function() {
+        resolve(fileReader.result);
       };
-      reader.readAsDataURL(file);
+      fileReader.readAsDataURL(img);
+      console.log(img);
     });
+  };
+
+  const handleFileUpload = e => {
+    let image = e.target.files;
+    Promise.all(Array.from(image).map(fileBase64))
+      .then(urls => {
+        setImages(prevArray => [...prevArray, ...urls]);
+      })
+      .catch(error => {
+        console.error(error);
+      });
   };
 
   return (
@@ -94,21 +103,34 @@ const AddActivity = ({ handleDrawerClose }) => {
               isFiles: true,
               type: '',
               file: File,
-              images: File
+              images: []
             }}
             onSubmit={async () => {
-              console.log(data);
+             const payload = {
+                Title: data.title,
+                Description: data.description,
+                EventFor: data.category,
+                Department: data.department,
+                DatePickerDialog: data.date,
+                Duration: data.duration,
+                Type: data.type,
+                File1: data.file,
+                File: images
+              };
 
-              console.log('Submit Data');
+              await axios
+                .post('https://localhost:44312/api/Activity', payload)
+                .then(res => {
+                  console.log(res.data);
+                  NotificationManager.success('Activity Data Deleted', 'Successful!', 2000);
+                  navigate(0);
+                })
+                .catch(error => {
+                  console.log(error);
+                });
             }}
           >
-            {({
-              handleSubmit,
-              isSubmitting,
-              handleChange,
-              values,
-              setFieldValue
-            }) => (
+            {({ handleSubmit, isSubmitting }) => (
               <form onSubmit={handleSubmit}>
                 <Box mb={3}>
                   <Typography color="textPrimary" variant="h2">
@@ -150,14 +172,15 @@ const AddActivity = ({ handleDrawerClose }) => {
                 />
                 <FormControl className={classes.formControl}>
                   <InputLabel id="demo-simple-select-label">
-                    Event For:{' '}
+                    Event For 
                   </InputLabel>
                   <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
                     name="category"
                     onChange={e => {
-                      setData({ ...data, category: e.target.value });
+                      let val = e.target.value;
+                      setData({ ...data, category: val });
                     }}
                     value={data.category}
                   >
@@ -172,9 +195,9 @@ const AddActivity = ({ handleDrawerClose }) => {
                   <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
-                    name="department"
                     onChange={e => {
-                      setData({ ...data, department: e.target.value });
+                      let val = e.target.value;
+                      setData({ ...data, department: val });
                     }}
                     value={data.department}
                   >
@@ -197,7 +220,8 @@ const AddActivity = ({ handleDrawerClose }) => {
                     id="demo-simple-select"
                     name="type"
                     onChange={e => {
-                      setData({ ...data, type: e.target.value });
+                      let val = e.target.value;
+                      setData({ ...data, type: val });
                     }}
                     value={data.type}
                   >
@@ -217,10 +241,10 @@ const AddActivity = ({ handleDrawerClose }) => {
                     id="date-picker-dialog"
                     label="Date picker dialog"
                     format="MM/dd/yyyy"
+                    value={data.date}
                     onChange={date => {
                       setData({ ...data, date });
                     }}
-                    value={data.date}
                     KeyboardButtonProps={{
                       'aria-label': 'change date'
                     }}
@@ -244,13 +268,24 @@ const AddActivity = ({ handleDrawerClose }) => {
                     <TextField
                       fullWidth
                       margin="normal"
-                      name="image"
+                      name="file"
                       onChange={e => {
-                        setData({ ...data, file: e.target.files[0] });
+                        const fileReader = new FileReader();
+
+                        fileReader.onload = () => {
+                          if (fileReader.readyState === 2) {
+                            setData({ ...data, file: fileReader.result });
+                          }
+                        };
+                        fileReader.readAsDataURL(e.target.files[0]);
                       }}
                       type="file"
                       variant="outlined"
                     />
+
+                    <Typography color="textPrimary" variant="h4">
+                      Upload Images:
+                    </Typography>
                     <Button
                       variant="outlined"
                       color="primary"
@@ -267,87 +302,39 @@ const AddActivity = ({ handleDrawerClose }) => {
                       variant="outlined"
                       color="secondary"
                       onClick={e => {
-                        let list = data.images;
+                        let list = images;
                         if (inputCount.count > 1) {
                           if (
-                            data.images.length > 0 &&
-                            data.images.length === inputCount.count
+                            images.length > 0 &&
+                            images.length === inputCount.count
                           ) {
-                            list.splice(data.images.length - 1, 1);
+                            list.splice(images.length - 1, 1);
                           }
                           setInputCount({
                             ...inputCount,
                             count: inputCount.count - 1
                           });
-                          setData({ ...data, images: list });
+                          setImages({ ...images, images: list });
                         }
                       }}
                     >
                       -
                     </Button>
+
                     {_.times(inputCount.count, i => (
                       <TextField
                         fullWidth
                         margin="normal"
-                        name="image"
-                        onChange={e => {
-                          const files = Array.from(e.target.files);
-
-                          files.forEach(file => {
-                            const reader = new FileReader();
-                            reader.onload = () => {
-                              if (reader.readyState === 2) {
-                                setData({ ...data, images: reader.result});
-                              }
-                            };
-                            reader.readAsDataURL(file);
-                          });
-                        }}
+                        name="images"
+                        onChange={handleFileUpload}
                         type="file"
                         variant="outlined"
+                        multiple
                       />
                     ))}
                   </Box>
                 )}
 
-                {/* <Typography
-                    color="textPrimary"
-                    variant="h4"
-                >
-                    Image:
-                </Typography>
-                <TextField
-                  error={Boolean(touched.image && errors.image)}
-                  fullWidth
-                  helperText={touched.image && errors.image}
-                  margin="normal"
-                  name="image"
-                  onBlur={handleBlur}
-                  onChange={(e) => {
-                    setData({...data, image: e.target.files[0]});
-                  }}
-                  type="file"
-                  variant="outlined"
-                />
-                <Typography
-                    color="textPrimary"
-                    variant="h4"
-                >
-                    File:
-                </Typography>
-                <TextField
-                  error={Boolean(touched.file && errors.file)}
-                  fullWidth
-                  helperText={touched.file && errors.file}
-                  margin="normal"
-                  name="file"
-                  onBlur={handleBlur}
-                  onChange={(e) => {
-                    setData({...data, file: e.target.files[0]});
-                  }}
-                  type="file"
-                  variant="outlined"
-                /> */}
                 <Box my={2}>
                   <Button
                     color="primary"

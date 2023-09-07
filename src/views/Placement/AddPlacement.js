@@ -16,7 +16,14 @@ import {
 } from '@material-ui/core';
 import Page from 'src/components/Page';
 import { useState } from 'react';
-
+import axios from "axios";
+import { useNavigate } from 'react-router-dom';
+import { NotificationManager } from 'react-notifications';
+import {
+  KeyboardDatePicker,
+  MuiPickersUtilsProvider
+} from '@material-ui/pickers';
+import DateFnsUtils from '@date-io/date-fns';
 var _ = require('lodash');
 
 const useStyles = makeStyles(theme => ({
@@ -34,6 +41,10 @@ const useStyles = makeStyles(theme => ({
 
 const AddPlacement = ({ handleDrawerClose }) => {
   const classes = useStyles();
+
+  const [images, setImages] = useState([]);
+  const navigate = useNavigate();
+
   const [data, setData] = useState({
     title: '',
     description: '',
@@ -44,31 +55,35 @@ const AddPlacement = ({ handleDrawerClose }) => {
     date: new Date(),
     isFiles: true,
     file: File,
-    images: []
   });
   const [inputCount, setInputCount] = useState({
     count: 1
   });
-  var imagesNames = [];
-  var imagesURLs = [];
 
-  const uploadImages = async storage => {
-    for (let i = 0; i < data.images.length; i++) {
-      let name = uuid();
-      await uploadFile(data.images[i], storage, name, 'image').then(url => {
-        imagesNames.push(name);
-        imagesURLs.push(url);
-      });
-    }
-  };
-
-  const uploadFile = async (file, reference, name, type) => {
-    const ref = reference.child(type).child(name);
-    const snapshot = await ref.put(file);
-    return snapshot.ref.getDownloadURL();
-  };
-
-  return (
+const fileBase64  = (img) => {
+    return new Promise((resolve, reject) => {
+      let fileReader = new FileReader();
+      fileReader.onerror = reject
+      fileReader.onload = function () {
+        resolve(fileReader.result)
+      }
+      fileReader.readAsDataURL(img)
+      console.log(img)
+    })
+  }
+  
+  const handleFileUpload = (e) => {
+    let image = e.target.files;
+    Promise.all(Array.from(image).map(fileBase64))
+      .then((urls,i) => {
+        setImages((prevArray)=>[...prevArray,...urls])
+      })
+      .catch((error) => {
+        console.error(error)
+      })
+  }
+  
+ return (
     <Page className={classes.root} title="Placement">
       <Box
         display="flex"
@@ -91,10 +106,31 @@ const AddPlacement = ({ handleDrawerClose }) => {
               images: []
             }}
             onSubmit={async () => {
-              
+              const payload = {
+                Title : data.title,
+                Description : data.description,
+                Eligible_Department : data.eligibleDept,
+                Organizedby : data.organizedBy,
+                CompanyName : data.companyName,
+                CampusType : data.campusType,
+                DatePicker : data.date,
+                File1 : data.file,
+                File : images
+              }
+            
+              await axios.post("https://localhost:44312/api/Placement",payload)
+              .then((res)=>{
+                console.log(res.data);
+                handleDrawerClose();
+                NotificationManager.success('Placement Data Added', 'Successful!', 2000);
+                navigate(0);
+              })
+              .catch((error)=>{
+                console.log(error);
+              })
             }}
           >
-            {({ handleSubmit, isSubmitting }) => (
+            {({ handleSubmit, isSubmitting ,setFieldValue,handleChange,values}) => (
               <form onSubmit={handleSubmit}>
                 <Box mb={3}>
                   <Typography color="textPrimary" variant="h2">
@@ -116,7 +152,7 @@ const AddPlacement = ({ handleDrawerClose }) => {
                   fullWidth
                   label="Description"
                   margin="normal"
-                  name="Description"
+                  name="description"
                   onChange={e => {
                     setData({ ...data, description: e.target.value });
                   }}
@@ -127,7 +163,7 @@ const AddPlacement = ({ handleDrawerClose }) => {
                   fullWidth
                   label="Eligible Departments"
                   margin="normal"
-                  name="Eligible"
+                  name="eligibleDept"
                   onChange={e => {
                     setData({ ...data, eligibleDept: e.target.value });
                   }}
@@ -138,7 +174,7 @@ const AddPlacement = ({ handleDrawerClose }) => {
                   fullWidth
                   label="Organized By (EG: Sanjay Ghodawat Institute)"
                   margin="normal"
-                  name="OrganizedBy"
+                  name="organizedBy"
                   onChange={e => {
                     setData({ ...data, organizedBy: e.target.value });
                   }}
@@ -163,6 +199,7 @@ const AddPlacement = ({ handleDrawerClose }) => {
                   <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
+                    name="campusType"
                     onChange={e => {
                       let val = e.target.value;
                       setData({ ...data, campusType: val });
@@ -174,8 +211,31 @@ const AddPlacement = ({ handleDrawerClose }) => {
                   </Select>
                 </FormControl>
 
-               
-               
+                <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                 <KeyboardDatePicker
+                    margin="normal"
+                    id="date-picker-dialog"
+                    label="Date picker dialog"
+                    format="MM/dd/yyyy"
+                    value={data.date}
+                    onChange={date => {
+                      setData({ ...data, date });
+                    }}
+                    KeyboardButtonProps={{
+                      'aria-label': 'change date'
+                    }}
+                  />
+                  <Switch
+                    checked={data.isFiles}
+                    onChange={e => {
+                      setData({ ...data, isFiles: e.target.checked });
+                    }}
+                    color="primary"
+                    name="checkedB"
+                    inputProps={{ 'aria-label': 'primary checkbox' }}
+                  />
+                </MuiPickersUtilsProvider>
+                {data.isFiles && (
                   <Box>
                     <Typography color="textPrimary" variant="h4">
                       File:
@@ -183,9 +243,17 @@ const AddPlacement = ({ handleDrawerClose }) => {
                     <TextField
                       fullWidth
                       margin="normal"
-                      name="image"
+                      name="file"
                       onChange={e => {
-                        setData({ ...data, file: e.target.files[0] });
+                        const fileReader = new FileReader();
+                        
+                        fileReader.onload = () => {
+                          if (fileReader.readyState === 2) {
+                            setData({...data,file:fileReader.result});
+                          }
+                          
+                        };
+                        fileReader.readAsDataURL(e.target.files[0]);
                       }}
                       type="file"
                       variant="outlined"
@@ -206,19 +274,20 @@ const AddPlacement = ({ handleDrawerClose }) => {
                       variant="outlined"
                       color="secondary"
                       onClick={e => {
-                        let list = data.images;
+                        let list = images;
                         if (inputCount.count > 1) {
                           if (
-                            data.images.length > 0 &&
-                            data.images.length === inputCount.count
+                            images.length > 0 &&
+                            images.length === inputCount.count
                           ) {
-                            list.splice(data.images.length - 1, 1);
+                            list.splice(images.length - 1, 1);
                           }
                           setInputCount({
                             ...inputCount,
                             count: inputCount.count - 1
                           });
-                          setData({ ...data, images: list });
+                          setImages({...images,images:list})
+                         
                         }
                       }}
                     >
@@ -226,58 +295,21 @@ const AddPlacement = ({ handleDrawerClose }) => {
                     </Button>
                     {_.times(inputCount.count, i => (
                       <TextField
-                        fullWidth
-                        margin="normal"
-                        name="image"
-                        onChange={e => {
-                          let files = data.images;
-                          files[i] = e.target.files[0];
-                          setData({ ...data, images: files });
-                        }}
-                        type="file"
-                        variant="outlined"
+                      fullWidth
+                      margin="normal"
+                      name="images"
+                      onChange={handleFileUpload}
+                      type="file"
+                      variant="outlined"
+                      multiple
                       />
+
+                     
                     ))}
+                    
                   </Box>
-                
-                {/* <Typography
-                    color="textPrimary"
-                    variant="h4"
-                >
-                    Image:
-                </Typography>
-                <TextField
-                  error={Boolean(touched.image && errors.image)}
-                  fullWidth
-                  helperText={touched.image && errors.image}
-                  margin="normal"
-                  name="image"
-                  onBlur={handleBlur}
-                  onChange={(e) => {
-                    setData({...data, image: e.target.files[0]});
-                  }}
-                  type="file"
-                  variant="outlined"
-                />
-                <Typography
-                    color="textPrimary"
-                    variant="h4"
-                >
-                    File:
-                </Typography>
-                <TextField
-                  error={Boolean(touched.file && errors.file)}
-                  fullWidth
-                  helperText={touched.file && errors.file}
-                  margin="normal"
-                  name="file"
-                  onBlur={handleBlur}
-                  onChange={(e) => {
-                    setData({...data, file: e.target.files[0]});
-                  }}
-                  type="file"
-                  variant="outlined"
-                /> */}
+                )}
+              
                 <Box my={2}>
                   <Button
                     color="primary"

@@ -70,6 +70,7 @@ const NewsResults = ({ className, allNews, ...rest }) => {
                 <TableCell>Content</TableCell>
                 <TableCell>File</TableCell>
                 <TableCell>Posted On</TableCell>
+                <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -87,6 +88,15 @@ const NewsResults = ({ className, allNews, ...rest }) => {
                         Open File
                       </a></TableCell>
                     <TableCell>{news.CreatedDate}</TableCell>
+                    <TableCell>
+                        <Button
+                          color="secondary"
+                          variant="contained"
+                          onClick={() => deleteNewsData(news.NId)}
+                        >
+                          Delete
+                        </Button>
+                      </TableCell>
                   </TableRow>
                 );
               })}

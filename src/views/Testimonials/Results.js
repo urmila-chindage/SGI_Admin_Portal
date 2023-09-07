@@ -124,7 +124,7 @@ const Results = ({
                           className="profileImage"
                         />
                       </TableCell>
-                      <TableCell>{testimonials.CreatedDate}</TableCell>
+                      <TableCell>{testimonials.CreatedDate.substr(0,10)}</TableCell>
 
                       <TableCell>
                         <Button

@@ -8,11 +8,15 @@ import {
   Divider,
   Grid,
   Typography,
-  makeStyles
+  makeStyles,
+  Button
 } from '@material-ui/core';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import DeleteIcon from '@material-ui/icons/Delete';
-
+import { useEffect } from 'react';
+import axios from 'axios';
+import { NotificationManager } from 'react-notifications';
+import { useNavigate } from 'react-router-dom';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -27,25 +31,40 @@ const useStyles = makeStyles(theme => ({
     marginRight: theme.spacing(1)
   },
   image: {
-    maxWidth: '200px',
-    maxHeight: '200px'
+    maxWidth: '100px',
+    maxHeight: '100px'
   }
 }));
 
+
+
 const PlacementReportCard = ({ className, placement, ...rest }) => {
+  const navigate = useNavigate();
+
+  const deletePlacementData = async id => {
+    await axios
+      .delete(`https://localhost:44312/api/Placement?PId=${id}`)
+      .then(res => {
+        console.log('Record is deleted', res);
+        NotificationManager.success('Placement Data Deleted', 'Successful!', 2000);
+        navigate(0);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
+
   const classes = useStyles();
-
-  
-
   return (
     <Card className={clsx(classes.root, className)} {...rest}>
       <CardContent>
-        <Box display="flex" justifyContent="center" mb={3}>
-         
-              <a href="ffgfh" target="blank">
-                <img alt="Staff" src="hfghfg" className={classes.image} />
+      <Box display="flex" justifyContent="center" mb={3}>
+          {placement.File &&
+            placement.File.map((d, i) => (
+              <a href={d} target="blank" key={i}>
+                <img alt="PlacementImages" src={d} className={classes.image} />
               </a>
-           
+            ))}
         </Box>
         <Typography
           align="center"
@@ -53,56 +72,55 @@ const PlacementReportCard = ({ className, placement, ...rest }) => {
           gutterBottom
           variant="h4"
         >
-       gfhgfh
+         {placement.Title}
         </Typography>
         <Divider />
         <Typography align="center" color="textPrimary" variant="body1">
-         yutu
+          {placement.Description}
         </Typography>
         <Divider />
         <Typography align="center" color="textPrimary" variant="body1">
-          Campus Type: uyuy
+          Campus Type: {placement.CampusType}
         </Typography>
         <Divider />
         <Typography align="center" color="textPrimary" variant="body1">
-          Eligible Departments: yuyui
+          Eligible Departments: {placement.Eligible_Department}
         </Typography>
         <Divider />
         <Typography align="center" color="textPrimary" variant="body1">
-          Organized By: yuiuyi
+          Organized By: {placement.Organizedby}
         </Typography>
         <Divider />
         <Typography align="center" color="textPrimary" variant="body1">
-          Company Name: hjj
+          Company Name: {placement.CompanyName}
         </Typography>
         <Divider />
         <Typography align="center" color="textPrimary" variant="body1">
-          Date: yuii
+          Date: {placement.DatePicker}
         </Typography>
       </CardContent>
       <Box flexGrow={1} />
       <Divider />
       <Box p={2}>
         <Grid container justify="space-between" spacing={2}>
-         
-            <a href="fgfhfg" target="blank">
-              <Grid className={classes.statsItem} item>
-                <GetAppIcon className={classes.statsIcon} color="action" />
-
-                <Typography
-                  color="textSecondary"
-                  display="inline"
-                  variant="body2"
-                >
-                  Download File
-                </Typography>
-              </Grid>
-            </a>
-          
-          <Box
-           
-          >
+        {placement.File1 && (
+          <a href={placement.File1} target={placement.File1}>
             <Grid className={classes.statsItem} item>
+              <GetAppIcon className={classes.statsIcon} color="action" />
+
+              <Typography
+                color="textSecondary"
+                display="inline"
+                variant="body2"
+              >
+                Download File
+              </Typography>
+            </Grid>
+          </a>
+        )}
+          <Box>
+            <Grid className={classes.statsItem} item>
+            <Button onClick={() => deletePlacementData(placement.PId)}>
               <DeleteIcon className={classes.statsIcon} color="action" />
 
               <Typography
@@ -112,6 +130,7 @@ const PlacementReportCard = ({ className, placement, ...rest }) => {
               >
                 Delete Record
               </Typography>
+              </Button>
             </Grid>
           </Box>
         </Grid>

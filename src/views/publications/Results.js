@@ -62,7 +62,7 @@ const Results = ({ className, publications, ...rest }) => {
   };
 
   useEffect(() => {
-    console.log(publicationData);
+    
   }, [publicationData]);
 
   return (
@@ -132,7 +132,7 @@ const Results = ({ className, publications, ...rest }) => {
 
 Results.propTypes = {
   className: PropTypes.string,
-  customers: PropTypes.array.isRequired
+  //customers: PropTypes.array.isRequired
 };
 
 export default Results;

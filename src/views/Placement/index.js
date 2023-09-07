@@ -23,9 +23,10 @@ import AddPlacement from './AddPlacement';
 import PlacementReportCard from './PlacementReportCard';
 import { useRef } from 'react';
 import clsx from 'clsx';
+import axios from "axios";
 
 
-const drawerWidth = '80%';
+const drawerWidth = '70%';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -90,8 +91,8 @@ const useStyles = makeStyles(theme => ({
 const Placement = ({ className, ...rest }) => {
   const classes = useStyles();
   const theme = useTheme();
-  const [dataWithFiles, setDataWithFiles] = useState([]);
-  const [dataWithoutFiles, setDataWithoutFiles] = useState([]);
+  
+  const [placementData,setPlacementData] = useState([]);
   const [open, setOpen] = useState(false);
   const [placementOfficer, setPlacementOfficer] = useState({
     name: '',
@@ -108,24 +109,23 @@ const Placement = ({ className, ...rest }) => {
     setOpen(false);
   };
 
- 
+  const getAllPlacementData = async () => {
+    await axios
+      .get('https://localhost:44312/api/Placement')
+      .then(res => {
+        console.log(res.data.data);
+        setPlacementData(res.data.data);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
+
+  useEffect(() => {
+    getAllPlacementData();
+  }, []);
 
    
-  const uploadFile = async (file, reference, name) => {
-    const ref = reference.child(name);
-    const snapshot = await ref.put(file);
-    return snapshot.ref.getDownloadURL();
-  };
-
-  const handleImageChange = e => {
-    fileRef.current.click();
-  };
-
- 
-
-  
-
-  
   return (
     <Page className={classes.root} title="Placement">
       <Container maxWidth={false}>
@@ -136,7 +136,9 @@ const Placement = ({ className, ...rest }) => {
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            flexDirection: 'column'
+            flexDirection: 'column',
+            padding:'20px',
+            marginTop:"20px"
           }}
           {...rest}
         >
@@ -204,12 +206,13 @@ const Placement = ({ className, ...rest }) => {
           </Box>
         </Card>
         <Box mt={3}>
-         
-            <PlacementReportCard placement="dgfgf" />
-          
-         
-            <PlacementReportCard placement="dffgfdf" />
-          
+        <Grid container spacing={3}>
+         {placementData.map((d, i) => (
+            <Grid item key={d.PId} lg={4} md={6} xs={12}>
+                <PlacementReportCard placement={d} />
+            </Grid>
+          ))}
+          </Grid>
         </Box>
         <Drawer
           className={classes.drawer}

@@ -53,8 +53,8 @@ const AddUpdate = ({ handleDrawerClose }) => {
                   console.log(values);
                   resetForm();
                   handleDrawerClose();
-                  navigate('/');
-                  NotificationManager.success('Upadate Data Added', 'Successful!', 2000);
+                  NotificationManager.success('Result and Letter Data Added', 'Successful!', 2000);
+                  navigate(0);
                 })
                 .catch(error => {
                   console.log(error);
