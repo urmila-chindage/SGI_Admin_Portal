@@ -1,5 +1,5 @@
 import React, { useEffect,useState } from 'react';
-import { Link as RouterLink, useLocation } from 'react-router-dom';
+import { Link as RouterLink, useLocation,useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import {
   Avatar,
@@ -121,17 +121,17 @@ const items = [
     icon: MailIcon,
     title: 'Email'
   },
-  {
+ /* {
     href: '/app/settings',
     icon: SettingsIcon,
     title: 'Settings'
-  },
+  },*/
   {
     href: '/login',
     icon: LockIcon,
     title: 'Login'
   },
-  {
+ /* {
     href: '/register',
     icon: UserPlusIcon,
     title: 'Register'
@@ -140,7 +140,7 @@ const items = [
     href: '/404',
     icon: AlertCircleIcon,
     title: 'Error'
-  }
+  }*/
 ];
 
 const useStyles = makeStyles(() => ({
@@ -163,28 +163,40 @@ const NavBar = ({ onMobileClose, openMobile }) => {
   const classes = useStyles();
   const location = useLocation();
   const [userData, setUserData] = useState({
-    displayName: 'Admin',
+    displayName: '',
     email: ''
   });
 
-  const getUserName = async(user) => {
-    await axios.get("https://localhost:44312/api/Admin")
-    if(user){
-      user.AId.then(val=>{
+  const [loginUser,setLoginUser] = useState([]);
+  const navigate = useNavigate();
+
+  const getUserName = async(id) => {
+    await axios.get(`https://localhost:44312/api/Registration/RId?RId=${id}`)
+    /*if(user){
+      user.RId.then(val=>{
           console.log(val);
-          localStorage.setItem('token', val);
+          localStorage.setItem('Token', val);
       })
       setUserData({
-        displayName: user.displayName,
-        email: user.email
+        displayName: user.FName + user.LName,
+        email: user.Email
       });
-    }
+    }*/
    
+  }
+  const signOut = () =>{
+    localStorage.clear();
+    navigate('/login');
   }
    
   useEffect(() => {
-      getUserName();
-    }, []);
+    const loginUser = JSON.parse(localStorage.getItem('user'));
+    if (loginUser) {
+      setLoginUser(loginUser);
+    }
+    console.log(loginUser)
+  }, []);
+
 
   useEffect(() => {
     if (openMobile && onMobileClose) {
@@ -212,15 +224,20 @@ const NavBar = ({ onMobileClose, openMobile }) => {
           component={RouterLink}
           to="/app/account"
         >
-        {userData.email[0]}
+        {loginUser.FName}
         </Avatar>
         <Typography
           className={classes.name}
           color="textPrimary"
           variant="h5"
         >
-          {userData.email}
+          {loginUser.FName} {loginUser.LName}
         </Typography>
+
+        <Typography className={classes.name} color="textPrimary" variant="h5">
+          {loginUser.Email}
+        </Typography>
+
         <Typography
           color="textSecondary"
           variant="body2"
@@ -247,7 +264,7 @@ const NavBar = ({ onMobileClose, openMobile }) => {
           <Button
             variant="contained"
             color="primary"
-           
+            onClick={() => signOut()}
           >
             Log Out
           </Button>

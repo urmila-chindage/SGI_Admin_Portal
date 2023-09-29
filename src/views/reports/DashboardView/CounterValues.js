@@ -12,6 +12,8 @@ import {
   import clsx from 'clsx';
   import axios from "axios";
   import { NotificationManager } from 'react-notifications';
+    import { ToastContainer, toast } from "react-toastify";
+  import "react-toastify/dist/ReactToastify.css";
   
   const CounterValues = ({ className, ...rest }) => {
     const useStyles = makeStyles(theme => ({
@@ -51,10 +53,11 @@ import {
       await axios.post("https://localhost:44312/api/Counter",payload)
       .then((res)=>{
         console.log(res.data);
-        NotificationManager.success('Counter Value is Set!', 'Successful!', 2000);
+        toast.success(`${res.data.Message}`);
       })
       .catch((error)=>{
         console.log(error);
+        toast.error(`${error.message}`);
       })
     }
 
@@ -64,6 +67,7 @@ import {
 
     return (
       <Card className={clsx(classes.root, className)} {...rest}>
+                <ToastContainer />
         <CardHeader title="Counter Values" />
         <Divider />
         <TextField

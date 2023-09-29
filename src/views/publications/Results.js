@@ -20,6 +20,8 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { NotificationManager } from 'react-notifications';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -41,15 +43,11 @@ const Results = ({ className, publications, ...rest }) => {
       .delete(`https://localhost:44312/api/Publication?PId=${id}`)
       .then(res => {
         console.log('Record is deleted', res);
-        NotificationManager.success(
-          'Publication Data is Deleted',
-          'Successful!',
-          2000
-        );
-        navigate(0);
+toast.success(`${res.data.Message}`);
       })
       .catch(error => {
         console.log(error);
+        toast.error(error);
       });
   };
 
@@ -67,6 +65,7 @@ const Results = ({ className, publications, ...rest }) => {
 
   return (
     <Card className={clsx(classes.root, className)} {...rest}>
+    <ToastContainer/>
       <PerfectScrollbar>
         <Box minWidth={1050}>
           <Table>
@@ -80,6 +79,7 @@ const Results = ({ className, publications, ...rest }) => {
                 <TableCell>Platform</TableCell>
                 <TableCell>Published in</TableCell>
                 <TableCell>Posted On</TableCell>
+                <TableCell>Action</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -132,7 +132,7 @@ const Results = ({ className, publications, ...rest }) => {
 
 Results.propTypes = {
   className: PropTypes.string,
-  //customers: PropTypes.array.isRequired
+  publications: PropTypes.array.isRequired
 };
 
 export default Results;

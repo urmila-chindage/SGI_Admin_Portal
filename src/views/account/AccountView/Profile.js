@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import moment from 'moment';
@@ -13,13 +13,14 @@ import {
   Typography,
   makeStyles
 } from '@material-ui/core';
+import { useState } from 'react';
 
 const user = {
-  avatar: '/static/images/avatars/avatar_6.png',
-  city: 'Los Angeles',
-  country: 'USA',
+  avatar: '/static/images/avatars/profileimage.jpg',
+  city: 'Kolhapur',
+  country: 'Maharashtra',
   jobTitle: 'Senior Developer',
-  name: 'Katarina Smith',
+  name: 'Urmila Sirase',
   timezone: 'GTM-7'
 };
 
@@ -34,51 +35,57 @@ const useStyles = makeStyles(() => ({
 const Profile = ({ className, ...rest }) => {
   const classes = useStyles();
 
+  const [userData, setUserData] = useState({
+    email: '',
+    name: ''
+  });
+
+ /* const getUserData = () => {
+    const dbRef = firebase.database().ref('gmailAdminData');
+    dbRef.on('value', snapshot => {
+      setUserData({
+        ...userData,
+        email: snapshot.val().email,
+        name: snapshot.val().name
+      });
+    });
+  };
+
+  useEffect(() => {
+    getUserData();
+  }, []);*/
+
   return (
-    <Card
-      className={clsx(classes.root, className)}
-      {...rest}
-    >
+    <Card className={clsx(classes.root, className)} {...rest}>
       <CardContent>
-        <Box
-          alignItems="center"
-          display="flex"
-          flexDirection="column"
-        >
-          <Avatar
-            className={classes.avatar}
-            src={user.avatar}
-          />
-          <Typography
-            color="textPrimary"
-            gutterBottom
-            variant="h3"
-          >
-            {user.name}
+        <Box alignItems="center" display="flex" flexDirection="column">
+          <Avatar className={classes.avatar}>A</Avatar>
+          <Typography color="textPrimary" gutterBottom variant="h3">
+            {userData.name[0]}
           </Typography>
-          <Typography
-            color="textSecondary"
-            variant="body1"
-          >
-            {`${user.city} ${user.country}`}
+          <Typography color="textSecondary" variant="body1">
+            {userData.name}
           </Typography>
           <Typography
             className={classes.dateText}
             color="textSecondary"
             variant="body1"
           >
-            {`${moment().format('hh:mm A')} ${user.timezone}`}
+            {userData.email}
+          </Typography>
+          <Typography
+            className={classes.dateText}
+            color="textSecondary"
+            variant="subtitle2"
+          >
+            All emails will be sent using this email Id
           </Typography>
         </Box>
       </CardContent>
       <Divider />
       <CardActions>
-        <Button
-          color="primary"
-          fullWidth
-          variant="text"
-        >
-          Upload picture
+        <Button color="primary" fullWidth variant="text">
+          Change Account
         </Button>
       </CardActions>
     </Card>

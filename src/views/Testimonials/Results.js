@@ -20,6 +20,9 @@ import {
 } from '@material-ui/core';
 import EditIcon from '@material-ui/icons/Edit';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -39,7 +42,8 @@ const Results = ({
   const [selectedTestimonial, setSelectedTestimonial] = useState([]);
   const [limit, setLimit] = useState(5);
   const [page, setPage] = useState(0);
-  const [loading, setLoading] = useState(true);
+
+  const navigate = useNavigate();
 
   const handleLimitChange = event => {
     setLimit(event.target.value);
@@ -48,49 +52,29 @@ const Results = ({
     setPage(newPage);
   };
 
-  const getAllTestimonials = async () => {
-    setLoading(true);
-    await axios
-      .get('https://localhost:44312/api/Testimonials')
-      .then(res => {
-        console.log(res.data.data);
-        setSelectedTestimonial(res.data.data);
-      })
-      .catch(error => {
-        console.log(error);
-      });
-  };
-
   const deleteTestiminials = async id => {
     await axios
       .delete(`https://localhost:44312/api/Testimonials?TId=${id}`)
       .then(res => {
         console.log('Record is deleted', res);
-        getAllTestimonials();
+        toast.success("Record Deleted Successfully");
+        return res.data.data;
       })
       .catch(error => {
         console.log(error);
+        toast.error(`${error.message}`);
+        navigate(0);
       });
   };
 
-  const editTestimonials = async id => {
-    await axios
-      .put(`https://localhost:44312/api/Testimonials/${id}`)
-      .then(res => {
-        console.log('Record is edited', res);
-      })
-      .catch(error => {
-        console.log(error);
-      });
-  };
-
-  useEffect(() => {
-    getAllTestimonials();
-  }, []);
+useEffect(() => {
+  console.log(testimonials);
+  }, [testimonials]);
 
   return (
     <Card className={clsx(classes.root, className)} {...rest}>
       <PerfectScrollbar>
+      <ToastContainer/>
         <Box minWidth={1050}>
           <Table>
             <TableHead>
@@ -99,11 +83,13 @@ const Results = ({
                 <TableCell>Description</TableCell>
                 <TableCell>Profile Image</TableCell>
                 <TableCell>Posted On</TableCell>
+                <TableCell>Action</TableCell>
+                <TableCell></TableCell>
               </TableRow>
             </TableHead>
 
             <TableBody>
-              {selectedTestimonial
+              {testimonials
                 .slice(page * limit, page * limit + limit)
                 .map(testimonials => {
                   return (
@@ -124,7 +110,7 @@ const Results = ({
                           className="profileImage"
                         />
                       </TableCell>
-                      <TableCell>{testimonials.CreatedDate.substr(0,10)}</TableCell>
+                      <TableCell>{testimonials.CreatedDate}</TableCell>
 
                       <TableCell>
                         <Button
@@ -158,7 +144,7 @@ const Results = ({
       </PerfectScrollbar>
       <TablePagination
         component="div"
-        count={selectedTestimonial.length}
+        count={testimonials.length}
         onChangePage={handlePageChange}
         onChangeRowsPerPage={handleLimitChange}
         page={page}
@@ -170,7 +156,8 @@ const Results = ({
 };
 
 Results.propTypes = {
-  className: PropTypes.string
+  className: PropTypes.string,
+  testimonials: PropTypes.array.isRequired
 };
 
 export default Results;

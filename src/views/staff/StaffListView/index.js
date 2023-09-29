@@ -16,6 +16,8 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import AddStaff from './AddStaff';
 import EditStaff from './EditStaff';
 import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const drawerWidth = '80%';
 
@@ -89,16 +91,20 @@ const StaffList = () => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [currentlyEditing, setCurrentlyEditing] = useState('');
   const theme = useTheme();
+  const [isLoading, setisLoading] = useState(true);
 
   const getAllStaffMembers = async () => {
     await axios
       .get('https://localhost:44312/api/StaffData')
       .then(res => {
+        //setisLoading(true)
         console.log(res.data.data);
         setStaffMembers(res.data.data);
+        setisLoading(false);
       })
       .catch(error => {
         console.log(error);
+        toast.error(error);
       });
   };
 
@@ -126,7 +132,13 @@ const StaffList = () => {
 
 
   return (
+    
     <Page className={classes.root} title="Staff">
+    <ToastContainer></ToastContainer>
+    { isLoading ?
+      (
+            <Box className='custom-loader'></Box>
+      ):(
       <Container maxWidth={false}>
         <Toolbar handleDrawerOpen={handleDrawerOpen} />
         <Box mt={3}>
@@ -195,6 +207,7 @@ const StaffList = () => {
           
         </Drawer>
       </Container>
+      )}
     </Page>
   );
 };

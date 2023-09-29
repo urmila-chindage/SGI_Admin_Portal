@@ -15,16 +15,9 @@ import {
 } from '@material-ui/core';
 import { useState } from 'react';
 import { useEffect } from 'react';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-
-const user = {
-  avatar: '/static/images/avatars/avatar_6.jpg',
-  city: 'Los Angeles',
-  country: 'USA',
-  jobTitle: 'Senior Developer',
-  name: 'Katarina Smith',
-  timezone: 'GTM-7'
-};
 
 const useStyles = makeStyles(() => ({
   root: {},
@@ -32,7 +25,7 @@ const useStyles = makeStyles(() => ({
     height: 100,
     width: 100,
     backgroundColor: '#000',
-    fontSize: 30
+    fontSize: 20
   }
 }));
 
@@ -44,24 +37,20 @@ const Profile = ({ className, ...rest }) => {
     name: ''
   });
 
- 
-
-  
-
-  return (
+ return (
     <Card className={clsx(classes.root, className)} {...rest}>
       <CardContent>
         <Box alignItems="center" display="flex" flexDirection="column">
-          <Avatar className={classes.avatar}>rtyy</Avatar>
+          <Avatar className={classes.avatar}>GS LLP</Avatar>
           <Typography color="textPrimary" gutterBottom variant="h3">
-            rtryty
+            Ghodawat Softech LLP
           </Typography>
           <Typography
             className={classes.dateText}
             color="textSecondary"
-            variant="body1"
+            variant="h6"
           >
-          rtrtry
+          ghodawatsoftech.developers@gmail.com
           </Typography>
           <Typography
             className={classes.dateText}
@@ -73,16 +62,7 @@ const Profile = ({ className, ...rest }) => {
         </Box>
       </CardContent>
       <Divider />
-      <CardActions>
-        <Button
-          color="primary"
-          fullWidth
-          variant="text"
-         
-        >
-          Change Account
-        </Button>
-      </CardActions>
+     
     </Card>
   );
 };

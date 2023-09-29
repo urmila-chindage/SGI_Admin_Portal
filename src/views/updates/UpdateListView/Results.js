@@ -22,6 +22,8 @@ import getInitials from 'src/utils/getInitials';
 import { useEffect } from 'react';
 import axios from 'axios';
 import { NotificationManager } from 'react-notifications';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -39,17 +41,18 @@ const Results = ({ className, updates, ...rest }) => {
   const navigate = useNavigate();
 
 const deleteUpdateData = async id => {
+  console.log(id);
     await axios
       .delete(
         `https://localhost:44312/api/LatestUpdate/DeleteLUpdateByUId?UId=${id}`
       )
       .then(res => {
         console.log('Record is deleted', res);
-        NotificationManager.success('Upadate Data Deleted', 'Successful!', 2000);
-        navigate(0);
+        toast.success(`${res.data.Message}`)
       })
       .catch(error => {
         console.log(error);
+        toast.error(`${error.message}`);
       });
   };
 
@@ -61,13 +64,13 @@ const deleteUpdateData = async id => {
     setPage(newPage);
   };
 
-  useEffect(() => {
+useEffect(() => {
     
-  }, [updateData]);
+  }, [updates]);
 
   return (
     <Card className={clsx(classes.root, className)} {...rest}>
-     
+     <ToastContainer></ToastContainer>
       <PerfectScrollbar>
         <Box minWidth={1050}>
           <Table>
@@ -77,6 +80,7 @@ const deleteUpdateData = async id => {
                 <TableCell>Description</TableCell>
                 <TableCell>File</TableCell>
                 <TableCell>Uploaded on</TableCell>
+                <TableCell>Action</TableCell>
               </TableRow>
             </TableHead>
 
@@ -100,7 +104,7 @@ const deleteUpdateData = async id => {
                       </TableCell>
                       <TableCell>{update.Description}</TableCell>
                       <TableCell>
-                        <a  href={update.File} target="_blank" onClick={(e)=>e.target.value}>
+                        <a  href={update.File} target="_blank">
                           Open File
                         </a>
                       </TableCell>
@@ -137,7 +141,7 @@ const deleteUpdateData = async id => {
 
 Results.propTypes = {
   className: PropTypes.string,
-  customers: PropTypes.array.isRequired
+  updates: PropTypes.array.isRequired
 };
 
 export default Results;

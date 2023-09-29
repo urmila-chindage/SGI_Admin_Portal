@@ -17,6 +17,8 @@ import GetAppIcon from '@material-ui/icons/GetApp';
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import { NotificationManager } from 'react-notifications';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 
 const useStyles = makeStyles(theme => ({
@@ -48,16 +50,17 @@ const deleteAchivementCard = async id => {
     .delete(`https://localhost:44312/api/Achivement?AId=${id}`)
     .then(res => {
       console.log('Record is deleted', res);
-      NotificationManager.success('Achievement Data Deleted', 'Successful!', 2000);
-      navigate(0);
+      toast.success(`${res.data.Message}`);
     })
     .catch(error => {
       console.log(error);
+      toast.error(error);
     });
 };
  
   return (
     <Card className={clsx(classes.root, className)} {...rest}>
+    <ToastContainer/>
       <CardContent>
         <Box display="flex" justifyContent="center" mb={3}>
           <img

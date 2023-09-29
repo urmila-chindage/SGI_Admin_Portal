@@ -19,6 +19,8 @@ import {
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { NotificationManager } from 'react-notifications';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -48,11 +50,11 @@ const NewsResults = ({ className, allNews, ...rest }) => {
       .delete(`https://localhost:44312/api/News?NId=${id}`)
       .then(res => {
         console.log('Record is deleted', res);
-        NotificationManager.success('News Data Deleted', 'Successful!', 2000);
-        navigate(0);
+toast.success(`${res.data.Message}`);
       })
       .catch(error => {
         console.log(error);
+        toast.error(error);
       });
   };
 
@@ -62,6 +64,7 @@ const NewsResults = ({ className, allNews, ...rest }) => {
 
   return (
     <Card className={clsx(classes.root, className)} {...rest}>
+    <ToastContainer/>
       <PerfectScrollbar>
         <Box minWidth={1050}>
           <Table>
@@ -119,7 +122,7 @@ const NewsResults = ({ className, allNews, ...rest }) => {
 
 NewsResults.propTypes = {
   className: PropTypes.string,
-  customers: PropTypes.array.isRequired
+  allNews: PropTypes.array.isRequired
 };
 
 export default NewsResults;

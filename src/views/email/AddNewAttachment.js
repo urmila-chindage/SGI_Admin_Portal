@@ -11,30 +11,50 @@ import React from 'react';
 import { useState } from 'react';
 import clsx from 'clsx';
 import Button from '@material-ui/core/Button';
+import axios from "axios";
+import { useNavigate } from 'react-router-dom';
+import { NotificationManager } from 'react-notifications';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AddNewAttachment = ({ className, ...rest }) => {
   const useStyles = makeStyles(theme => ({
     root: {
-      height: '100%'
+      height: '100%',
+      marginTop:'20px',
+      padding:'10px'
     }
   }));
 
   const [data, setData] = useState({
     fileName: '',
     file: null,
-    downloadURL: ''
   });
   const [isDisabled, setIsDisables] = useState(false);
   const classes = useStyles();
 
-  const uploadFileAsync = async (file, storageRef, name) => {
-    const ref = storageRef.child('testimonials').child(name);
-    const snapshot = await ref.put(file);
-    return await snapshot.ref.getDownloadURL();
-  };
+  const uploadAttachment = async() =>{
+    setIsDisables(true);
+    const payload = {
+      FileName : data.fileName,
+      File : data.file
+    }
+      await axios.post("https://localhost:44312/api/Email",payload)
+       .then((res)=>{
+          console.log(res.data);
+          toast.success(`${res.data.Message}`);
+          setData({fileName:"",file:null})
+        })
+        .catch((error)=>{
+          console.log(error)
+          toast.error(error);
+        })
+        setIsDisables(false);
+  }
 
   return (
     <Card className={clsx(classes.root, className)} {...rest}>
+    <ToastContainer/>
       <CardHeader title="Upload Attachment To Cloud" />
 
       <Divider />
@@ -57,15 +77,23 @@ const AddNewAttachment = ({ className, ...rest }) => {
         margin="normal"
         name="file"
         onChange={e => {
-          setData({ ...data, file: e.target.files[0] });
+          const fileReader = new FileReader();
+          
+          fileReader.onload = () => {
+            if (fileReader.readyState === 2) {
+              setData({ ...data, file: fileReader.result });
+            }
+            
+          };
+          fileReader.readAsDataURL(e.target.files[0]);
         }}
         type="file"
         variant="outlined"
       />
-      {data.downloadURL && (
+      {data.file && (
         <Box>
           <Typography color="primary" variant="h5">
-            {data.downloadURL}
+            <a href={data.file} alt="Downloaded File">Download File</a>
           </Typography>
         </Box>
       )}
@@ -76,7 +104,7 @@ const AddNewAttachment = ({ className, ...rest }) => {
           size="large"
           type="submit"
           variant="contained"
-         
+          onClick={uploadAttachment}
           disabled={isDisabled}
         >
           Upload

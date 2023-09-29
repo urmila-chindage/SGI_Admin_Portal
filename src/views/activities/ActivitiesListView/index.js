@@ -16,6 +16,9 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ActivityCard from './ActivityCard';
 import AddActivity from './AddActivities';
 import axios from "axios";
+import loader from "../../../Images/1920x1080-0724884440e8ddd0896ff557b75a222a.gif"
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const drawerWidth = '80%';
 
@@ -84,6 +87,7 @@ const ActivitiesListView = () => {
   const theme = useTheme();
   const [activityData,setActivityData] = useState([]);
   const [open, setOpen] = useState(false);
+  const [isLoading, setisLoading] = useState(true);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -99,9 +103,11 @@ const ActivitiesListView = () => {
       .then(res => {
         console.log(res.data.data);
         setActivityData(res.data.data);
+        setisLoading(false);
       })
       .catch(error => {
         console.log(error);
+        toast.error(error);
       });
   };
 
@@ -111,7 +117,12 @@ const ActivitiesListView = () => {
 
  return (
     <Page className={classes.root} title="Activities">
+{ isLoading ?
+      (
+            <Box className='custom-loader'></Box>
+          ):(
       <Container maxWidth={false}>
+      <ToastContainer/>
         <Toolbar handleDrawerOpen={handleDrawerOpen} />
         <Box mt={3}>
          <Grid container spacing={3}>
@@ -144,6 +155,8 @@ const ActivitiesListView = () => {
           <AddActivity handleDrawerClose={handleDrawerClose} />
         </Drawer>
       </Container>
+            )
+    }
     </Page>
   );
 };

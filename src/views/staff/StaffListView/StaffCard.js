@@ -17,6 +17,8 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import EditIcon from '@material-ui/icons/Edit';
 import axios from 'axios';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -59,15 +61,17 @@ const StaffCard = ({
       .delete(`https://localhost:44312/api/StaffData?StaffId=${id}`)
       .then(res => {
         console.log('Record is deleted', res);
-        navigate(0)
+        toast.success(`${res.data.Message}`)
       })
       .catch(error => {
         console.log(error);
+        toast.error(error);
       });
   };
 
   return (
     <Card className={clsx(classes.root, className)} {...rest}>
+    <ToastContainer></ToastContainer>
       <CardContent key={staff.StaffId}>
         <Box display="flex" justifyContent="center" mb={3}>
           <Avatar alt="Staff Image" src={staff.Image} variant="square" />
@@ -173,7 +177,7 @@ const StaffCard = ({
               hidden 
               ref={fileRef} />
           </>
-          <Grid className={classes.statsItem} item>
+          {/* <Grid className={classes.statsItem} item>
             <Button onClick={handleImageChange}>
               <EditIcon className={classes.statsIcon} color="action" />
               <Typography
@@ -196,7 +200,7 @@ const StaffCard = ({
                 Change Resume
               </Typography>
             </Button>
-          </Grid>
+          </Grid> */}
         </Grid>
       </Box>
     </Card>

@@ -7,10 +7,12 @@ import LatestContacts from './LatestContacts';
 import CounterValues from './CounterValues';
 import HomeCarousel from './HomeCarousel';
 //import VideoCarousel from './VideoCarousel';
-import ImgCarousel from './ImgCarousel';
+import PhotoGallery from './PhotoGallery';
 import Headlines from './Headlines';
 import SubscribersList from './SubscribersList';
 import Modal from './Modal';
+import WeeklyPerformance from './WeeklyPerformance';
+import TotalHits from './TotalHits';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -58,10 +60,16 @@ const Dashboard = () => {
           </Grid>
          
            <Grid item lg={6} md={6} xl={6} xs={6}>
-            <ImgCarousel />
+            <PhotoGallery />
           </Grid>
          
-         
+          <Grid item lg={8} md={12} xl={9} xs={12}>
+            <WeeklyPerformance />
+          </Grid>
+
+          <Grid item lg={3} sm={6} xl={3} xs={12}>
+            <TotalHits />
+          </Grid>
          
         </Grid>
       </Container>

@@ -24,6 +24,8 @@ import PlacementReportCard from './PlacementReportCard';
 import { useRef } from 'react';
 import clsx from 'clsx';
 import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 
 const drawerWidth = '70%';
@@ -91,6 +93,7 @@ const useStyles = makeStyles(theme => ({
 const Placement = ({ className, ...rest }) => {
   const classes = useStyles();
   const theme = useTheme();
+    const [isLoading, setisLoading] = useState(true);
   
   const [placementData,setPlacementData] = useState([]);
   const [open, setOpen] = useState(false);
@@ -109,25 +112,75 @@ const Placement = ({ className, ...rest }) => {
     setOpen(false);
   };
 
+  const handleImageChange = e => {
+    fileRef.current.click();
+  };
+
+  const setOfficerData = async() =>{
+    const payload = {
+      Name : placementOfficer.name,
+      Image : placementOfficer.image,
+      Description : placementOfficer.description
+    }
+      await axios.post("https://localhost:44312/api/PlacementOfficer",payload)
+      .then((res)=>{
+          console.log(res.data)
+          toast.success(`${res.data.Message}`);
+      })
+      .catch((error)=>{
+        console.log(error)
+        toast.error(error);
+      })
+  }
+
+  const getOfficerData = async() =>{
+    await axios.get("https://localhost:44312/api/PlacementOfficer")
+      .then((res)=>{
+        
+        let officerData = res.data.data
+        console.log(officerData.length)
+                setisLoading(false);
+        for(let i = 0; i < officerData.length; i++){
+          setPlacementOfficer({
+            ...placementOfficer,
+            name: officerData[i].Name,
+            description: officerData[i].Description,
+            image: officerData[i].Image
+        });
+      }
+    })
+    .catch((error)=>{
+      console.log(error)
+      toast.error(error);
+    })
+  }
+
   const getAllPlacementData = async () => {
     await axios
       .get('https://localhost:44312/api/Placement')
       .then(res => {
         console.log(res.data.data);
         setPlacementData(res.data.data);
+        setisLoading(false);
       })
       .catch(error => {
         console.log(error);
+        toast.error(error);
       });
   };
 
   useEffect(() => {
     getAllPlacementData();
+    getOfficerData();
   }, []);
 
    
   return (
     <Page className={classes.root} title="Placement">
+    { isLoading ?
+      (
+            <Box className='custom-loader'></Box>
+          ):(
       <Container maxWidth={false}>
         <Toolbar handleDrawerOpen={handleDrawerOpen} />
         <Card
@@ -144,29 +197,40 @@ const Placement = ({ className, ...rest }) => {
         >
           <CardHeader title="Placement Officer" />
           <Divider />
-          <Avatar alt="dfgffgh" src="fhfg" />
+          <Avatar alt={placementOfficer.name} src={placementOfficer.image} />
           <Button
             color="primary"
             size="large"
             variant="contained"
-           
+            onClick={handleImageChange}
           >
             Change Image
           </Button>
           <input
             type="file"
-            name="file"
+            name="image"
             id="file"
             hidden
             ref={fileRef}
-           
+            onChange={(e)=>{
+              if (e.target.files && e.target.files[0]) {
+                let reader = new FileReader();
+                reader.onload = e => {
+                 setPlacementOfficer({
+                    ...placementOfficer,
+                    image: e.target.result
+                  });
+                };
+                reader.readAsDataURL(e.target.files[0]);
+              }
+            }}
            
           />
           <TextField
             fullWidth
             label="Name"
             margin="normal"
-            name="this year"
+            name="name"
             onChange={e => {
               setPlacementOfficer({
                 ...placementOfficer,
@@ -199,7 +263,7 @@ const Placement = ({ className, ...rest }) => {
               size="large"
               type="submit"
               variant="contained"
-             
+              onClick={setOfficerData}
             >
               Set
             </Button>
@@ -235,6 +299,8 @@ const Placement = ({ className, ...rest }) => {
           <AddPlacement handleDrawerClose={handleDrawerClose} />
         </Drawer>
       </Container>
+            )
+    }
     </Page>
   );
 };

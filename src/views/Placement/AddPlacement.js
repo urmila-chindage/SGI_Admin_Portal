@@ -16,7 +16,9 @@ import {
 } from '@material-ui/core';
 import Page from 'src/components/Page';
 import { useState } from 'react';
-import axios from "axios";
+import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
 import { NotificationManager } from 'react-notifications';
 import {
@@ -54,37 +56,38 @@ const AddPlacement = ({ handleDrawerClose }) => {
     campusType: '',
     date: new Date(),
     isFiles: true,
-    file: File,
+    file: File
   });
   const [inputCount, setInputCount] = useState({
     count: 1
   });
 
-const fileBase64  = (img) => {
+  const fileBase64 = img => {
     return new Promise((resolve, reject) => {
       let fileReader = new FileReader();
-      fileReader.onerror = reject
-      fileReader.onload = function () {
-        resolve(fileReader.result)
-      }
-      fileReader.readAsDataURL(img)
-      console.log(img)
-    })
-  }
-  
-  const handleFileUpload = (e) => {
+      fileReader.onerror = reject;
+      fileReader.onload = function() {
+        resolve(fileReader.result);
+      };
+      fileReader.readAsDataURL(img);
+      console.log(img);
+    });
+  };
+
+  const handleFileUpload = e => {
     let image = e.target.files;
     Promise.all(Array.from(image).map(fileBase64))
-      .then((urls,i) => {
-        setImages((prevArray)=>[...prevArray,...urls])
+      .then((urls, i) => {
+        setImages(prevArray => [...prevArray, ...urls]);
       })
-      .catch((error) => {
-        console.error(error)
-      })
-  }
-  
- return (
+      .catch(error => {
+        console.error(error);
+      });
+  };
+
+  return (
     <Page className={classes.root} title="Placement">
+      <ToastContainer />
       <Box
         display="flex"
         flexDirection="column"
@@ -107,30 +110,37 @@ const fileBase64  = (img) => {
             }}
             onSubmit={async () => {
               const payload = {
-                Title : data.title,
-                Description : data.description,
-                Eligible_Department : data.eligibleDept,
-                Organizedby : data.organizedBy,
-                CompanyName : data.companyName,
-                CampusType : data.campusType,
-                DatePicker : data.date,
-                File1 : data.file,
-                File : images
-              }
-            
-              await axios.post("https://localhost:44312/api/Placement",payload)
-              .then((res)=>{
-                console.log(res.data);
-                handleDrawerClose();
-                NotificationManager.success('Placement Data Added', 'Successful!', 2000);
-                navigate(0);
-              })
-              .catch((error)=>{
-                console.log(error);
-              })
+                Title: data.title,
+                Description: data.description,
+                Eligible_Department: data.eligibleDept,
+                Organizedby: data.organizedBy,
+                CompanyName: data.companyName,
+                CampusType: data.campusType,
+                DatePicker: data.date,
+                File1: data.file,
+                File: images
+              };
+
+              await axios
+                .post('https://localhost:44312/api/Placement', payload)
+                .then(res => {
+                  console.log(res.data);
+                  handleDrawerClose();
+                  toast.success(`${res.data.Message}`);
+                })
+                .catch(error => {
+                  console.log(error);
+                  toast.error(error);
+                });
             }}
           >
-            {({ handleSubmit, isSubmitting ,setFieldValue,handleChange,values}) => (
+            {({
+              handleSubmit,
+              isSubmitting,
+              setFieldValue,
+              handleChange,
+              values
+            }) => (
               <form onSubmit={handleSubmit}>
                 <Box mb={3}>
                   <Typography color="textPrimary" variant="h2">
@@ -212,7 +222,7 @@ const fileBase64  = (img) => {
                 </FormControl>
 
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                 <KeyboardDatePicker
+                  <KeyboardDatePicker
                     margin="normal"
                     id="date-picker-dialog"
                     label="Date picker dialog"
@@ -246,12 +256,11 @@ const fileBase64  = (img) => {
                       name="file"
                       onChange={e => {
                         const fileReader = new FileReader();
-                        
+
                         fileReader.onload = () => {
                           if (fileReader.readyState === 2) {
-                            setData({...data,file:fileReader.result});
+                            setData({ ...data, file: fileReader.result });
                           }
-                          
                         };
                         fileReader.readAsDataURL(e.target.files[0]);
                       }}
@@ -286,8 +295,7 @@ const fileBase64  = (img) => {
                             ...inputCount,
                             count: inputCount.count - 1
                           });
-                          setImages({...images,images:list})
-                         
+                          setImages({ ...images, images: list });
                         }
                       }}
                     >
@@ -295,21 +303,18 @@ const fileBase64  = (img) => {
                     </Button>
                     {_.times(inputCount.count, i => (
                       <TextField
-                      fullWidth
-                      margin="normal"
-                      name="images"
-                      onChange={handleFileUpload}
-                      type="file"
-                      variant="outlined"
-                      multiple
+                        fullWidth
+                        margin="normal"
+                        name="images"
+                        onChange={handleFileUpload}
+                        type="file"
+                        variant="outlined"
+                        multiple
                       />
-
-                     
                     ))}
-                    
                   </Box>
                 )}
-              
+
                 <Box my={2}>
                   <Button
                     color="primary"

@@ -1,8 +1,7 @@
-import React, {useState} from 'react';
+import React from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
-
 import {
   Box,
   Button,
@@ -14,18 +13,26 @@ import {
   makeStyles
 } from '@material-ui/core';
 import Page from 'src/components/Page';
+import { useState } from 'react';
 import axios from "axios";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import LinearProgress from '@material-ui/core/LinearProgress';
+import BgImage from "../../Images/bgimage.jpg";
 
-
-
-
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   root: {
-    backgroundColor: theme.palette.background.dark,
+    //backgroundColor: theme.palette.background.dark,
+    backgroundImage: `url(${BgImage})`,
+    backgroundSize: 'cover',
     height: '100%',
     paddingBottom: theme.spacing(3),
     paddingTop: theme.spacing(3)
-  }
+  },
+  bgColor :{
+    backgroundColor: theme.palette.background.dark,
+    padding:theme.spacing(3)
+  },
 }));
 
 const LoginView = () => {
@@ -33,11 +40,8 @@ const LoginView = () => {
   const navigate = useNavigate();
   const [isDisabled, setIsDisabled] = useState(false);
 
-  return (
-    <Page
-      className={classes.root}
-      title="Login"
-    >
+ return (
+    <Page className={classes.root} title="Login">
       <Box
         display="flex"
         flexDirection="column"
@@ -45,33 +49,45 @@ const LoginView = () => {
         justifyContent="center"
       >
         <Container maxWidth="sm">
-          <Formik
+        <Formik
             initialValues={{
-              Email: '',
-              Password: ''
+              email: '',
+              password: ''
             }}
             validationSchema={Yup.object().shape({
-              Email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
-              Password: Yup.string().max(255).required('Password is required')
+              email: Yup.string()
+                .email('Must be a valid email')
+                .max(255)
+                .required('Email is required'),
+              password: Yup.string()
+                .max(255)
+                .required('Password is required')
             })}
-            onSubmit={async values => {
+            onSubmit={async (values) => {
+             let payload={
+                Email : values.email,
+                Password : values.password 
+              }
+              //console.log(values)
               setIsDisabled(true);
-              console.log(values.Email,values.Password);
-              await axios
-              
-                .post("https://localhost:44312/api/Admin",values)
+               await axios.post("https://localhost:44312/api/Registration/Login",payload)
+               .then((res)=>{
+                console.log(res.data);
+                localStorage.setItem("user", JSON.stringify(res.data));
+                if(values.email===res.data.Email && values.password === res.data.Password){
+                  navigate('/app/dashboard', { replace: true });
+                  
+                }
+                else {
+                 toast.error("User Data does not found");
+                }
                
-                .then((res) => {
-                 console.log(res.data);
-                 navigate('/app/dashboard', { replace: true });
-                
-                 
-                })
-              
-                .catch(err => {
-                 
                 setIsDisabled(false);
-                })
+               })
+               .catch((error)=>{
+                console.log(error);
+               })
+               
             }}
           >
             {({
@@ -82,50 +98,45 @@ const LoginView = () => {
               isSubmitting,
               touched,
               values
-            }) => (
-              <form onSubmit={handleSubmit}>
-             
+            }) => ( 
+              <form onSubmit={handleSubmit} className={classes.bgColor}>
+                 <ToastContainer />
                 <Box mb={3}>
-                  <Typography
-                    color="textPrimary"
-                    variant="h2"
-                  >
+                  <Typography color="textPrimary" variant="h2">
                     Sign in
                   </Typography>
-                  
                 </Box>
-              
-               
+                {isDisabled && <LinearProgress/>}
                 <TextField
-                  error={Boolean(touched.Email && errors.Email)}
+                  error={Boolean(touched.email && errors.email)}
                   fullWidth
-                  helperText={touched.Email && errors.Email}
+                  helperText={touched.email && errors.email}
                   label="Email Address"
                   margin="normal"
-                  name="Email"
+                  name="email"
                   onBlur={handleBlur}
                   onChange={handleChange}
-                  type="string"
-                  value={values.Email}
+                  type="email"
+                  value={values.email}
                   variant="outlined"
                 />
                 <TextField
-                  error={Boolean(touched.Password && errors.Password)}
+                  error={Boolean(touched.password && errors.password)}
                   fullWidth
-                  helperText={touched.Password && errors.Password}
+                  helperText={touched.password && errors.password}
                   label="Password"
                   margin="normal"
-                  name="Password"
+                  name="password"
                   onBlur={handleBlur}
                   onChange={handleChange}
-                  type="string"
-                  value={values.Password}
+                  type="password"
+                  value={values.password}
                   variant="outlined"
                 />
                 <Box my={2}>
                   <Button
                     color="primary"
-                    disabled={isSubmitting}
+                    disabled={isDisabled}
                     fullWidth
                     size="large"
                     type="submit"
@@ -134,7 +145,20 @@ const LoginView = () => {
                     Sign in now
                   </Button>
                 </Box>
-               
+               {/* <Typography
+                  color="textSecondary"
+                  variant="body1"
+                >
+                  Don&apos;t have an account?
+                  {' '}
+                  <Link
+                    component={RouterLink}
+                    to="/register"
+                    variant="h6"
+                  >
+                    Sign up
+                  </Link>
+            </Typography> */}
               </form>
             )}
           </Formik>

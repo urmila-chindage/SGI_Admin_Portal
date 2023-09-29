@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState , useEffect } from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import {
@@ -11,17 +11,40 @@ import {
   TextField,
   makeStyles
 } from '@material-ui/core';
+import axios from 'axios';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const useStyles = makeStyles(({
   root: {}
 }));
 
-const Password = ({ className, ...rest }) => {
+
+
+const Password = ({ className ,RId , ...rest }) => {
   const classes = useStyles();
   const [values, setValues] = useState({
-    password: '',
-    confirm: ''
+    RId: "",
+    FName: "",
+    LName: "",
+    Email: "",
+    Password: "",
+    Mobileno: "",
+    State: "",
+    Country: "",
   });
+
+  const getPassword = async (RId) =>{
+    await axios
+    .get(`https://localhost:44312/api/Registration/RId?RId=${RId}`)
+    .then(res => {
+      console.log("responce:",res.data.data)
+      setValues(res.data.data);
+    })
+    .catch(error => {     
+      console.log(error);
+    });
+  }
 
   const handleChange = (event) => {
     setValues({
@@ -30,12 +53,30 @@ const Password = ({ className, ...rest }) => {
     });
   };
 
+  useEffect(()=>{
+    getPassword();
+  },[])
+
   return (
     <form
       className={clsx(classes.root, className)}
       {...rest}
+      onSubmit={async (RId) => {
+             
+             await axios.put(`https://localhost:44312/api/Registration/${RId}`,values)
+             .then((res)=>{
+               console.log(res);
+               console.log(values);
+               toast.success(`${res.data.Message}`)        
+             })
+             .catch((error)=>{
+               console.log(error);
+               toast.error(`${error.message}`);
+             })
+           }}
     >
       <Card>
+      <ToastContainer/>
         <CardHeader
           subheader="Update password"
           title="Password"
@@ -44,22 +85,22 @@ const Password = ({ className, ...rest }) => {
         <CardContent>
           <TextField
             fullWidth
-            label="Password"
+            label="Old Password"
             margin="normal"
             name="password"
-            onChange={handleChange}
+            // onChange={handleChange}
             type="password"
-            value={values.password}
+            // value={values.password}
             variant="outlined"
           />
           <TextField
             fullWidth
-            label="Confirm password"
+            label="New password"
             margin="normal"
             name="confirm"
             onChange={handleChange}
             type="password"
-            value={values.confirm}
+            // value={values.confirm}
             variant="outlined"
           />
         </CardContent>

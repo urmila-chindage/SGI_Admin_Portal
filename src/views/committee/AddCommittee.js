@@ -12,6 +12,11 @@ import {
 import Page from 'src/components/Page';
 import { useState } from 'react';
 import axios from "axios";
+import { useNavigate } from 'react-router-dom';
+import { NotificationManager } from 'react-notifications';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 var _ = require('lodash');
 
 
@@ -37,7 +42,7 @@ const AddCommittee = ({handleDrawerClose}) => {
       committeeName: '',
       committeeMembers: [
         {
-          name: '',
+          memberName: '',
           designation: ''
         }
       ]
@@ -45,15 +50,14 @@ const AddCommittee = ({handleDrawerClose}) => {
     const [inputCount,setInputCount] = useState({
       count:1
     })
-
-
+    const navigate = useNavigate();
   
-
     return (
         <Page
       className={classes.root}
       title="Committee"
     >
+    <ToastContainer/>
       <Box
         display="flex"
         flexDirection="column"
@@ -67,34 +71,31 @@ const AddCommittee = ({handleDrawerClose}) => {
               committeeName: '',
               committeeMembers: []
             }}
-            onSubmit={async () => {
-                const payload = {
-                  CYear : data.year,
-                  CName : data.committeeName,
-                  committeeMembers : [
-                    {
-                      MemberName : data.committeeMembers.name,
-                     
-                    },
-                    {
-                      Designation : data.committeeMembers.designation
-                    }
-                   
-                  ]
-                }
-
-                await axios.post("https://localhost:44312/api/Committee",payload)
-                .then((res)=>{
+           
+            onSubmit={async ({ resetForm }) => {
+              const payload = {
+                CYear : data.year,
+                CName : data.committeeName,
+                addCommitteeData : data.committeeMembers
+              }
+              console.log(payload)
+             await axios.post("https://localhost:44312/api/Committee",payload)
+              .then((res)=>{
                   console.log(res.data);
+                  handleDrawerClose();
+                  //resetForm();
+                  toast.success(`${res.data.Message}`);
                 })
                 .catch((error)=>{
-                  console.log(error)
+                  console.log(error);
+                  toast.error(error);
                 })
             }}
           >
             {({              
               handleSubmit,
               isSubmitting,
+              
             }) => (
               <Box
               display="flex"
@@ -120,7 +121,7 @@ const AddCommittee = ({handleDrawerClose}) => {
                   fullWidth
                   label="Committee Name"
                   margin="normal"
-                  name="name"
+                  name="committeeName"
                   onChange={(e) => {
                     setData({...data, committeeName: e.target.value});
                   }}
@@ -143,7 +144,7 @@ const AddCommittee = ({handleDrawerClose}) => {
           onClick={e => {
             setInputCount({...inputCount, count: inputCount.count + 1})
             let obj = {
-              name: '',
+              memberName: '',
               designation: ''
             }
             let members = data.committeeMembers;
@@ -173,13 +174,14 @@ const AddCommittee = ({handleDrawerClose}) => {
               fullWidth
               label="Member Name"
               margin="normal"
-              name="name"
+              name="memberName"
               onChange={(e) => {
                 let members = data.committeeMembers
-                members[i]["name"] = e.target.value
+                members[i]["memberName"] = e.target.value
                 setData({...data, committeeMembers: members});
+                //setData({...data, committeeMembers: data.committeeMembers});
               }}
-              value={data.committeeMembers.name}
+              value={data.committeeMembers[i].memberName}
               variant="outlined"
             />
              <TextField

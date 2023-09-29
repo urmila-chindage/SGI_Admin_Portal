@@ -19,6 +19,8 @@ import {
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { NotificationManager } from 'react-notifications';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -50,11 +52,11 @@ const Results = ({ className, calendars, ...rest }) => {
       )
       .then(res => {
         console.log('Record is deleted', res);
-        NotificationManager.success('Calendar Data Deleted', 'Successful!', 2000);
-        navigate(0);
+toast.success(`${res.data.Message}`);
       })
       .catch(error => {
         console.log(error);
+        toast.error(error);
       });
   };
 
@@ -64,6 +66,7 @@ const Results = ({ className, calendars, ...rest }) => {
 
   return (
     <Card className={clsx(classes.root, className)} {...rest}>
+    <ToastContainer/>
       <PerfectScrollbar>
         <Box minWidth={1050}>
           <Table>
@@ -74,6 +77,7 @@ const Results = ({ className, calendars, ...rest }) => {
                 <TableCell>File</TableCell>
                 <TableCell>Department</TableCell>
                 <TableCell>Posted On</TableCell>
+                <TableCell>Action</TableCell>
               </TableRow>
             </TableHead>
 
@@ -131,7 +135,7 @@ const Results = ({ className, calendars, ...rest }) => {
 
 Results.propTypes = {
   className: PropTypes.string,
-  customers: PropTypes.array.isRequired
+  calendars: PropTypes.array.isRequired
 };
 
 export default Results;

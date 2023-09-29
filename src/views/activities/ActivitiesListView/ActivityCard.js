@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import {
   Box,
+  Button,
   Card,
   CardContent,
   Divider,
@@ -15,6 +16,8 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import axios from 'axios';
 import { NotificationManager } from 'react-notifications';
 import { useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -43,11 +46,11 @@ const ActivityCard = ({ className, activity, ...rest }) => {
       .delete(`https://localhost:44312/api/Activity?ActId=${id}`)
       .then(res => {
         console.log('Record is deleted', res);
-        NotificationManager.success('Activity Data Deleted', 'Successful!', 2000);
-        navigate(0);
+toast.success(`${res.data.Message}`);
       })
       .catch(error => {
         console.log(error);
+        toast.error(error);
       });
   };
 
@@ -57,6 +60,7 @@ const ActivityCard = ({ className, activity, ...rest }) => {
       className={clsx(classes.root, className)}
       {...rest}
     >
+    <ToastContainer/>
       <CardContent>
         <Box
           display="flex"
@@ -162,7 +166,7 @@ const ActivityCard = ({ className, activity, ...rest }) => {
           </Grid>
         </a>
        )}
-        <Box
+        <Button
           onClick={() => deleteActivityData(activity.ActId)}
         >
         <Grid
@@ -182,7 +186,7 @@ const ActivityCard = ({ className, activity, ...rest }) => {
               Delete Record
             </Typography>
           </Grid>
-        </Box>
+        </Button>
         </Grid>
       </Box>
     </Card>

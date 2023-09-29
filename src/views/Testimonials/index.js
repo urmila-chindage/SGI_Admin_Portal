@@ -16,9 +16,10 @@ import Results from './Results';
 import AddTestimonial from './AddTestimonials';
 import EditTestimonials from "./EditTestimonials";
 import axios from "axios";
+import loader from "../../Images/1920x1080-0724884440e8ddd0896ff557b75a222a.gif"
 
 
-const drawerWidth = "80%";
+const drawerWidth = "40%";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -90,6 +91,7 @@ const TestimonialsList = () => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [currentlyEditing, setCurrentlyEditing] = useState('');
   const theme = useTheme();
+  const [isLoading, setisLoading] = useState(true);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -108,12 +110,12 @@ const TestimonialsList = () => {
   };
 
   const getAllTestimonials = async () => {
-   
     await axios
       .get('https://localhost:44312/api/Testimonials')
       .then(res => {
         console.log(res.data.data);
         setTestimonialInfo(res.data.data);
+        setisLoading(false);
         })
       .catch(error => {
         console.log(error);
@@ -130,11 +132,17 @@ const TestimonialsList = () => {
       title="Testimonials"
       
     >
+     { isLoading ?
+      (
+            <Box className='custom-loader'></Box>
+          ):(
       <Container maxWidth={false}>
         <Toolbar handleDrawerOpen={handleDrawerOpen} />
         <Box mt={3}>
+       
           <Results testimonials={testimonilInfo}  handleEditDrawerOpen={handleEditDrawerOpen}
                   setCurrentlyEditing={setCurrentlyEditing}/>
+            
         </Box>
         <Drawer
         className={classes.drawer}
@@ -182,6 +190,8 @@ const TestimonialsList = () => {
           
         </Drawer>
       </Container>
+      )
+    }
 
     
     

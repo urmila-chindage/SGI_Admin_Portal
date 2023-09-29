@@ -13,6 +13,8 @@ import Page from 'src/components/Page';
 import { useState } from 'react';
 import axios from "axios";
 import "../Testimonials/Testimonials.css";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 
 const useStyles = makeStyles(theme => ({
@@ -35,12 +37,14 @@ const EditTestimonials = ({ handleEditDrawerClose,currentTestimonialId }) => {
 
  
  const [testimonials, setTestimonials] = useState({
+  TId:"",
     Name:"",
     Desc:"",
     Image:""
   });
 
- const getTestimonialRecord = async () =>{
+ let getTestimonialRecord = async () =>{
+  
     await axios
     .get(`https://localhost:44312/api/Testimonials/CounterId?TId=${currentTestimonialId}`)
     .then(res => {
@@ -48,6 +52,7 @@ const EditTestimonials = ({ handleEditDrawerClose,currentTestimonialId }) => {
       console.log(currentTestimonialId)
       setTestimonials({
         ...testimonials,
+        TId:res.data.data.TId,
         Name: res.data.data.Name,
         Desc: res.data.data.Desc,
         Image: res.data.data.Image,
@@ -70,6 +75,7 @@ const EditTestimonials = ({ handleEditDrawerClose,currentTestimonialId }) => {
 
  return (
     <Page className={classes.root} title="Testimonials">
+          <ToastContainer/>
       <Box
         display="flex"
         flexDirection="column"
@@ -79,31 +85,48 @@ const EditTestimonials = ({ handleEditDrawerClose,currentTestimonialId }) => {
         <Container maxWidth="sm">
           <Formik
             initialValues={{
+              TId:"",
               Name: "",
               Desc: "",
               Image: ""
             }}
            
            
-            onSubmit={async (testimonials,{resetForm}) => {
-             let testimonialsData = {
-                 Name : testimonials.Name,
-                 Desc : testimonials.Desc,
-                 Image : testimonials.Image
-             }
-              await axios.put(`https://localhost:44312/api/Testimonials/${currentTestimonialId}`,testimonialsData)
+            onSubmit={async (currentTestimonialId,{resetForm}) => {
+             
+              await axios.put(`https://localhost:44312/api/Testimonials/${currentTestimonialId}`,testimonials)
               .then((res)=>{
                 console.log(res);
                 console.log(testimonials);
-               
+                toast.success(`${res.data.Message}`) 
+                handleEditDrawerClose();         
               })
               .catch((error)=>{
                 console.log(error);
+                toast.error(`${error.message}`);
               })
             }}
           >
             {({ errors, handleBlur, handleSubmit, isSubmitting,touched,handleChange,setFieldValue }) => (
               <form onSubmit={handleSubmit}>
+              <div hidden>
+                <TextField 
+                  type="string"
+                  fullWidth
+                  label="Id"
+                  margin="normal"
+                  name="Id"
+                  onBlur={handleBlur}
+                  onChange={e => {
+                    setTestimonials({ ...testimonials, TId: e.target.value });
+                  }}
+                  value={testimonials.TId}
+                  variant="outlined"
+                  error={Boolean(touched.TId && errors.TId)}
+                  helperText={touched.TId && errors.TId}
+                  hidden
+                />
+                </div>
               
                 <Box mb={3}>
                   <Typography color="textPrimary" variant="h2">
@@ -155,14 +178,22 @@ const EditTestimonials = ({ handleEditDrawerClose,currentTestimonialId }) => {
                    name="Image"
                    accept="image/*"
                    onChange={(e) => {
-                    const fileReader = new FileReader();
-                    fileReader.onload = () => {
-                      if (fileReader.readyState === 2) {
-                        setFieldValue('Image', fileReader.result);
-                        setAvatarPreview(fileReader.result);
-                      }
+                    // const fileReader = new FileReader();
+                    // fileReader.onload = () => {
+                    //   if (fileReader.readyState === 2) {
+                    //     setFieldValue('Image', fileReader.result);
+                    //     setAvatarPreview(fileReader.result);
+                    //   }
+                    // };
+                    // fileReader.readAsDataURL(e.target.files[0]);
+
+                    if (e.target.files && e.target.files[0]) {
+                    let reader = new FileReader();
+                    reader.onload = (e) => {
+                      setTestimonials({ ...testimonials, Image: e.target.result });
                     };
-                    fileReader.readAsDataURL(e.target.files[0]);
+                    reader.readAsDataURL(e.target.files[0]);
+    }
                   }}
                   error={Boolean(touched.Image && errors.Image)}
                   helperText={touched.Image && errors.Image}
@@ -179,7 +210,7 @@ const EditTestimonials = ({ handleEditDrawerClose,currentTestimonialId }) => {
                     type="submit"
                     variant="contained"
                   >
-                    Add
+                    Update
                   </Button>
                 </Box>
               </form>

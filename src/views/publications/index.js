@@ -16,8 +16,10 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import AddPublication from "./AddPublication";
 import Results from './Results';
 import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-const drawerWidth = "80%";
+const drawerWidth = "40%";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -87,6 +89,7 @@ const PublicationsList = () => {
   const [publications, setPublications] = useState([]);
   const [open, setOpen] = useState(false);
   const theme = useTheme();
+  const [isLoading, setisLoading] = useState(true);
 
   const getAllPublicationData = async () => {
     await axios
@@ -94,9 +97,11 @@ const PublicationsList = () => {
       .then(res => {
         console.log(res.data.data);
         setPublications(res.data.data);
+        setisLoading(false);
       })
       .catch(error => {
         console.log(error);
+        toast.error(error);
       });
   };
 
@@ -118,7 +123,12 @@ const handleDrawerOpen = () => {
       title="Publication"
       
     >
+{ isLoading ?
+      (
+            <Box className='custom-loader'></Box>
+          ):(
       <Container maxWidth={false}>
+      <ToastContainer/>
         <Toolbar handleDrawerOpen={handleDrawerOpen} />
         <Box mt={3}>
           <Results publications={publications} />
@@ -140,6 +150,8 @@ const handleDrawerOpen = () => {
         <AddPublication handleDrawerClose={handleDrawerClose} />
       </Drawer>
       </Container>
+            )
+    }
     </Page>
   );
 };

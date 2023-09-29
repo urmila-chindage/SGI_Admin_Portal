@@ -10,11 +10,16 @@ import React from 'react';
 import { useState } from 'react';
 import clsx from 'clsx';
 import Button from '@material-ui/core/Button';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import axios from "axios";
 
 const SendMailToSubscribers = ({ className, ...rest }) => {
   const useStyles = makeStyles(theme => ({
     root: {
-      height: '100%'
+      height: '100%',
+      marginTop:'20px',
+      padding:'10px'
     }
   }));
 
@@ -32,6 +37,32 @@ const SendMailToSubscribers = ({ className, ...rest }) => {
     let win = window.open('', '', 'width=auto, height=auto');
     win.document.write(html);
   };
+
+  const sendMail = async () => {
+    setIsDisables(true);
+    let html = data.html;
+    html = html.replaceAll('"', "'");
+    //const { subject } = data;
+    console.log(html);
+    console.log(data);
+    let obj = {
+      Subject : data.subject,
+      HtmlCode :  html
+    };
+    await axios.post("https://localhost:44312/api/Email/SendEmail",obj)
+    .then((res)=>{
+      setIsDisables(false);
+      console.log(res);
+      setData({...data,html : ""})
+      setData({...data,subject : ""});
+     
+    })
+    .catch((error)=>{
+      console.log(error);
+    })
+
+  }
+ 
 
   //   useEffect(() => {}, []);
   return (
@@ -69,17 +100,20 @@ const SendMailToSubscribers = ({ className, ...rest }) => {
           size="large"
           type="submit"
           variant="contained"
-         
+          onClick={sendMail}
           disabled={isDisabled}
         >
           Send
         </Button>
+        </Box>
+        <Box my={2}>
         <Button
           fullWidth
           size="large"
           variant="contained"
           style={{ backgroundColor: '#35BDD0' }}
           onClick={previewEmail}
+         
         >
           Preview
         </Button>

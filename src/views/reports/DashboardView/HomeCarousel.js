@@ -24,6 +24,8 @@ import { v4 as uuid } from 'uuid';
 import axios from 'axios';
 // React Notification
 import { NotificationManager } from 'react-notifications';
+  import { ToastContainer, toast } from "react-toastify";
+  import "react-toastify/dist/ReactToastify.css";
 
 
 const CarouselImages = ({ className, ...rest }) => {
@@ -73,6 +75,11 @@ const CarouselImages = ({ className, ...rest }) => {
         console.log(error);
       });
   };
+  
+  useEffect(() => {
+    getCarouselImages();
+  }, []);
+
   const submitImage =  () => {
     const payload = {
       Images: profile
@@ -84,12 +91,14 @@ const CarouselImages = ({ className, ...rest }) => {
       )
       .then(res => {
         console.log(res);
-        navigate('/');
-        NotificationManager.success('Carousel Image is added!', 'Successful!', 2000);
+        // navigate('/');
+        // NotificationManager.success('Carousel Image is added!', 'Successful!', 2000);
+                toast.success(`${res.data.Message}`);
        
       })
       .catch(error => {
         console.log(error);
+                toast.error(`${error.message}`);
       });
   };
 
@@ -99,21 +108,19 @@ const CarouselImages = ({ className, ...rest }) => {
       .delete(`https://localhost:44312/api/SliderImage/DeleteImage?SIId=${id}`)
       .then(res => {
         console.log('Record is deleted', res);
-        navigate('/');
         NotificationManager.success('Carousel Image is deleted!', 'Successful!', 2000);
-       
+        //navigate(0);
       })
       .catch(error => {
         console.log(error);
       });
   };
 
-  useEffect(() => {
-    getCarouselImages();
-  }, []);
+ 
 
   return (
     <Card className={clsx(classes.root, className)} {...rest}>
+              <ToastContainer />
       
       <CardHeader title="Carousel Images" />
       <Divider />

@@ -18,7 +18,8 @@ import { useState } from 'react';
 import axios from "axios";
 import { useNavigate } from 'react-router-dom';
 import { NotificationManager } from 'react-notifications';
-
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -41,6 +42,7 @@ const AddLibraryData = ({ handleDrawerClose }) => {
 
   return (
     <Page className={classes.root} title="Calendar">
+    <ToastContainer/>
       <Box
         display="flex"
         flexDirection="column"
@@ -62,11 +64,11 @@ const AddLibraryData = ({ handleDrawerClose }) => {
                   console.log(values);
                   resetForm();
                   handleDrawerClose();
-                  NotificationManager.success('Library Data is Added', 'Successful!', 2000);
-                  navigate(0);
+toast.success(`${res.data.Message}`);
                 })
                 .catch(error => {
                   console.log(error);
+                  toast.error(error);
                 })
             }}
           >

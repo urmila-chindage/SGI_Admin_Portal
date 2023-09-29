@@ -16,8 +16,11 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import AddCalendar from './AddCalendar';
 import Results from './Results';
 import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { ErrorOutline } from '@material-ui/icons';
 
-const drawerWidth = "80%";
+const drawerWidth = "40%";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -87,6 +90,7 @@ const CalendarList = () => {
   const [open, setOpen] = useState(false);
   const [calendars, setCalendars] = useState([]);
   const theme = useTheme();
+  const [isLoading, setisLoading] = useState(true);
 
   const getAllCalendarsData = async () => {
     await axios
@@ -94,9 +98,11 @@ const CalendarList = () => {
       .then(res => {
         console.log(res.data.data);
         setCalendars(res.data.data);
+        setisLoading(false);
       })
       .catch(error => {
         console.log(error);
+        toast.error(error);
       });
   };
 
@@ -119,7 +125,12 @@ const CalendarList = () => {
       className={classes.root}
       title="Academic Calendar"
     >
+{ isLoading ?
+      (
+            <Box className='custom-loader'></Box>
+          ):(
       <Container maxWidth={false}>
+      <ToastContainer/>
         <Toolbar handleDrawerOpen={handleDrawerOpen} />
         <Box mt={3}>
           <Results calendars={calendars} />
@@ -159,6 +170,8 @@ const CalendarList = () => {
         </List> */}
       </Drawer>
       </Container>
+            )
+    }
     </Page>
   );
 };

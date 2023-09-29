@@ -14,14 +14,24 @@ import {
   makeStyles
 } from '@material-ui/core';
 import Page from 'src/components/Page';
+import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import BgImage from "../../Images/bgimage.jpg";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    backgroundColor: theme.palette.background.dark,
+    //backgroundColor: theme.palette.background.dark,
+    backgroundImage: `url(${BgImage})`,
+    backgroundSize: 'cover',
     height: '100%',
     paddingBottom: theme.spacing(3),
     paddingTop: theme.spacing(3)
-  }
+  },
+  bgColor :{
+    backgroundColor: theme.palette.background.dark,
+    padding:theme.spacing(3)
+  },
 }));
 
 const RegisterView = () => {
@@ -43,22 +53,37 @@ const RegisterView = () => {
           <Formik
             initialValues={{
               email: '',
-              firstName: '',
-              lastName: '',
+              fName: '',
+              lName: '',
               password: '',
-              policy: false
+              mobileno:"",
+              state:"",
+              country:"",
+              policy:""
             }}
             validationSchema={
               Yup.object().shape({
                 email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
-                firstName: Yup.string().max(255).required('First name is required'),
-                lastName: Yup.string().max(255).required('Last name is required'),
+                fName: Yup.string().max(255).required('First name is required'),
+                lName: Yup.string().max(255).required('Last name is required'),
                 password: Yup.string().max(255).required('password is required'),
+                mobileno: Yup.string().max(255).required('Mobile Number is required'),
+                state: Yup.string().max(255).required('State is required'),
+                country: Yup.string().max(255).required('Country is required'),
                 policy: Yup.boolean().oneOf([true], 'This field must be checked')
               })
             }
-            onSubmit={() => {
-              navigate('/app/dashboard', { replace: true });
+            onSubmit={async(values) => {
+              await axios.post("https://localhost:44312/api/Registration",values)
+              .then((res)=>{
+                console.log(res);
+                navigate('/', { replace: true });
+                localStorage.setItem("user",JSON.stringify(values));
+                toast.success("You are Registered successfully!!")
+              })
+              .then((error)=>{
+                console.log(error);
+              })
             }}
           >
             {({
@@ -70,7 +95,8 @@ const RegisterView = () => {
               touched,
               values
             }) => (
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmit} className={classes.bgColor}>
+                 <ToastContainer/>
                 <Box mb={3}>
                   <Typography
                     color="textPrimary"
@@ -87,27 +113,27 @@ const RegisterView = () => {
                   </Typography>
                 </Box>
                 <TextField
-                  error={Boolean(touched.firstName && errors.firstName)}
+                  error={Boolean(touched.fName && errors.fName)}
                   fullWidth
-                  helperText={touched.firstName && errors.firstName}
+                  helperText={touched.fName && errors.fName}
                   label="First name"
                   margin="normal"
-                  name="firstName"
+                  name="fName"
                   onBlur={handleBlur}
                   onChange={handleChange}
-                  value={values.firstName}
+                  value={values.fName}
                   variant="outlined"
                 />
                 <TextField
-                  error={Boolean(touched.lastName && errors.lastName)}
+                  error={Boolean(touched.lName && errors.lName)}
                   fullWidth
-                  helperText={touched.lastName && errors.lastName}
+                  helperText={touched.lName && errors.lName}
                   label="Last name"
                   margin="normal"
-                  name="lastName"
+                  name="lName"
                   onBlur={handleBlur}
                   onChange={handleChange}
-                  value={values.lastName}
+                  value={values.lName}
                   variant="outlined"
                 />
                 <TextField
@@ -134,6 +160,48 @@ const RegisterView = () => {
                   onChange={handleChange}
                   type="password"
                   value={values.password}
+                  variant="outlined"
+                />
+
+                <TextField
+                  error={Boolean(touched.mobileno && errors.mobileno)}
+                  fullWidth
+                  helperText={touched.mobileno && errors.mobileno}
+                  label="Mobile Number"
+                  margin="normal"
+                  name="mobileno"
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  type="text"
+                  value={values.mobileno}
+                  variant="outlined"
+                />
+
+                <TextField
+                  error={Boolean(touched.state && errors.state)}
+                  fullWidth
+                  helperText={touched.state && errors.state}
+                  label="State"
+                  margin="normal"
+                  name="state"
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  type="text"
+                  value={values.state}
+                  variant="outlined"
+                />
+
+                <TextField
+                  error={Boolean(touched.country && errors.country)}
+                  fullWidth
+                  helperText={touched.country && errors.country}
+                  label="Country"
+                  margin="normal"
+                  name="country"
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  type="text"
+                  value={values.country}
                   variant="outlined"
                 />
                 <Box

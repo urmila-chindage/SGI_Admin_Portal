@@ -17,6 +17,8 @@ import { useEffect } from 'react';
 import axios from 'axios';
 import { NotificationManager } from 'react-notifications';
 import { useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -32,13 +34,14 @@ const useStyles = makeStyles(theme => ({
   },
   image: {
     maxWidth: '100px',
-    maxHeight: '100px'
+    maxHeight: '100px',
+    marginRight:'10px'
   }
 }));
 
 
 
-const PlacementReportCard = ({ className, placement, ...rest }) => {
+const PlacementReportCard = ({ className, placement,handleDrawerClose, ...rest }) => {
   const navigate = useNavigate();
 
   const deletePlacementData = async id => {
@@ -46,11 +49,12 @@ const PlacementReportCard = ({ className, placement, ...rest }) => {
       .delete(`https://localhost:44312/api/Placement?PId=${id}`)
       .then(res => {
         console.log('Record is deleted', res);
-        NotificationManager.success('Placement Data Deleted', 'Successful!', 2000);
-        navigate(0);
+        toast.success(`${res.data.Message}`);
+        handleDrawerClose();
       })
       .catch(error => {
         console.log(error);
+        toast.error(error);
       });
   };
 

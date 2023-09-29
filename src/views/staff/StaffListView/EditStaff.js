@@ -16,6 +16,8 @@ import Page from 'src/components/Page';
 import { useState } from 'react';
 import axios from 'axios';
 import { Fullscreen } from '@material-ui/icons';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -34,6 +36,7 @@ const EditStaff = ({ handleEditDrawerClose, currentStaffId }) => {
   const classes = useStyles();
   const [profile,setProfile] = useState("");
   const [staff, setStaff] = useState({
+    StaffId:'',
     FullName: '',
     Designation: '',
     Department: '',
@@ -74,6 +77,7 @@ const EditStaff = ({ handleEditDrawerClose, currentStaffId }) => {
 
   return (
     <Page className={classes.root} title="Staff">
+    <ToastContainer></ToastContainer>
       <Box
         display="flex"
         flexDirection="column"
@@ -83,6 +87,7 @@ const EditStaff = ({ handleEditDrawerClose, currentStaffId }) => {
         <Container maxWidth="sm">
           <Formik
             initialValues={{
+              StaffId:'',
               FullName: '',
               Designation: '',
               Department: '',
@@ -96,6 +101,7 @@ const EditStaff = ({ handleEditDrawerClose, currentStaffId }) => {
             onSubmit={async ({resetForm} ) => {
               //let staff = {FullName,Designation,Department,Email,Qualification,Expertise,Experience,Image,Doc}
               let staffData1 = {
+                StaffId : staff.StaffId,
                 FullName : staff.FullName,
                 Designation : staff.Designation,
                 Department : staff.Department,
@@ -106,13 +112,17 @@ const EditStaff = ({ handleEditDrawerClose, currentStaffId }) => {
                 Image : staff.Image,
                 Doc : staff.Doc
               }
+              console.log("Updated data:",staffData1);
               await axios.put(`https://localhost:44312/api/StaffData/${currentStaffId}`,staffData1)
               .then((res)=>{
-                console.log(res)
+                // console.log(res)
+                toast.success(`${res.data.Message}`)
+                handleEditDrawerClose();
                
               })
               .catch((error)=>{
                 console.log(error);
+                toast.error(error)
               })
             }}
           >
@@ -122,7 +132,22 @@ const EditStaff = ({ handleEditDrawerClose, currentStaffId }) => {
                   <Typography color="textPrimary" variant="h2">
                     Edit Staff Member
                   </Typography>
-                </Box>
+                  
+                </Box><div hidden>
+                <TextField
+                  error={Boolean(touched.StaffId && errors.StaffId)}
+                  fullWidth
+                  helperText={touched.StaffId && errors.StaffId}
+                  label="StaffId"
+                  margin="normal"
+                  name="StaffId"
+                  onBlur={handleBlur}
+                  onChange={e => {
+                    setStaff({ ...staff, StaffId: e.target.value });
+                  }}
+                  value={staff.StaffId}
+                  variant="outlined"
+                /></div>
                 <TextField
                   error={Boolean(touched.FullName && errors.FullName)}
                   fullWidth
@@ -270,8 +295,14 @@ const EditStaff = ({ handleEditDrawerClose, currentStaffId }) => {
                    type="file"
                    name="Image"
                    accept="image/*"
-                   onChange={e => {
-                    setStaff({ ...staff, Image: e.target.value });
+                   onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                    let reader = new FileReader();
+                    reader.onload = (e) => {
+                      setStaff({ ...staff, Image: e.target.result });
+                    };
+                    reader.readAsDataURL(e.target.files[0]);
+    }
                   }}
                  
                   error={Boolean(touched.Image && errors.Image)}

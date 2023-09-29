@@ -13,6 +13,8 @@ import {
   import { NotificationManager } from 'react-notifications';
   import clsx from 'clsx';
   import axios from "axios";
+    import { ToastContainer, toast } from "react-toastify";
+  import "react-toastify/dist/ReactToastify.css";
  
   
   const Headline = ({ className, ...rest }) => {
@@ -35,8 +37,16 @@ import {
         await axios.get("https://localhost:44312/api/Marquee")
         .then((res)=>{
           console.log(res.data.data);
-          let headlineData = res.data.data;
-          setHeadlineInfo(headlineData[headlineData.length-1]);
+
+        let headLineData = res.data.data
+        console.log(headLineData.length)
+        for(let i = 0; i < headLineData.length; i++)
+        {
+          setHeadlineInfo({
+            ...headlineInfo,
+            headline: headLineData[i].Data
+          });
+        }
          
         })
         .catch((error)=>{
@@ -51,11 +61,12 @@ import {
       await axios.post("https://localhost:44312/api/Marquee",payload)
       .then((res)=>{
         console.log(res.data)
-        navigate('/');
-        NotificationManager.success('HeadLine Data is Set!', 'Successful!', 2000);
+        toast.success(`${res.data.Message}`);
+        navigate(0);
       })
       .catch((error)=>{
         console.log(error);
+                toast.error(`${error.message}`);
       })
     }
 
@@ -65,6 +76,7 @@ import {
   
     return (
       <Card className={clsx(classes.root, className)} {...rest}>
+                <ToastContainer />
         <CardHeader title="Marquee Headline" />
         <Divider />
         <TextField

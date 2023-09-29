@@ -2,7 +2,8 @@ import React, { useState,useEffect } from 'react';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import PerfectScrollbar from 'react-perfect-scrollbar';
-
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import {
   Box,
   Card,
@@ -48,15 +49,11 @@ const LinksResult = ({ className, importantLinks, ...rest }) => {
       .delete(`https://localhost:44312/api/ImportantLink?ILId=${id}`)
       .then(res => {
         console.log('Record is deleted', res);
-        NotificationManager.success(
-          'Important Links Data Deleted',
-          'Successful!',
-          2000
-        );
-        navigate(0);
+toast.success(`${res.data.Message}`);
       })
       .catch(error => {
         console.log(error);
+        toast.error(error);
       });
   };
 
@@ -64,6 +61,7 @@ const LinksResult = ({ className, importantLinks, ...rest }) => {
 
   return (
     <Card className={clsx(classes.root, className)} {...rest}>
+    <ToastContainer/>
       <PerfectScrollbar>
         <Box minWidth={1050}>
           <Table>
@@ -95,7 +93,7 @@ const LinksResult = ({ className, importantLinks, ...rest }) => {
                         </Box>
                       </TableCell>
                       <TableCell>
-                        {links.IsFile ? (
+                        {links.FileButton ? (
                           <a href={links.File} target="blank">
                             Open File
                           </a>
@@ -137,7 +135,7 @@ const LinksResult = ({ className, importantLinks, ...rest }) => {
 
 LinksResult.propTypes = {
   className: PropTypes.string,
-  customers: PropTypes.array.isRequired
+  importantLinks: PropTypes.array.isRequired
 };
 
 export default LinksResult;

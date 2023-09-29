@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import PerfectScrollbar from 'react-perfect-scrollbar';
@@ -16,10 +16,15 @@ import {
   makeStyles,
   Button
 } from '@material-ui/core';
+import axios from "axios";
+import { useNavigate } from 'react-router-dom';
+import { NotificationManager } from 'react-notifications';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 
 const useStyles = makeStyles(theme => ({
-  root: {},
+  root: {marginBottom:theme.spacing(2)},
   avatar: {
     marginRight: theme.spacing(2)
   }
@@ -27,52 +32,13 @@ const useStyles = makeStyles(theme => ({
 
 const Results = ({ className, committees, ...rest }) => {
   const classes = useStyles();
-  const [selectedCommittees, setselectedCommittees] = useState([]);
+  const [committeeData, setCommitteeData] = useState([]);
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(0);
 
- 
+  const navigate = useNavigate();
 
-  const handleSelectAll = event => {
-    let newselectedCommittees;
-
-    if (event.target.checked) {
-      newselectedCommittees = committees.map(update => update.key);
-    } else {
-      newselectedCommittees = [];
-    }
-
-    setselectedCommittees(newselectedCommittees);
-  };
-
-  const handleSelectOne = (event, id) => {
-    const selectedIndex = selectedCommittees.indexOf(id);
-    let newselectedCommittees = [];
-
-    if (selectedIndex === -1) {
-      newselectedCommittees = newselectedCommittees.concat(
-        selectedCommittees,
-        id
-      );
-    } else if (selectedIndex === 0) {
-      newselectedCommittees = newselectedCommittees.concat(
-        selectedCommittees.slice(1)
-      );
-    } else if (selectedIndex === selectedCommittees.length - 1) {
-      newselectedCommittees = newselectedCommittees.concat(
-        selectedCommittees.slice(0, -1)
-      );
-    } else if (selectedIndex > 0) {
-      newselectedCommittees = newselectedCommittees.concat(
-        selectedCommittees.slice(0, selectedIndex),
-        selectedCommittees.slice(selectedIndex + 1)
-      );
-    }
-
-    setselectedCommittees(newselectedCommittees);
-  };
-
-  const handleLimitChange = event => {
+ const handleLimitChange = event => {
     setLimit(event.target.value);
   };
 
@@ -80,84 +46,79 @@ const Results = ({ className, committees, ...rest }) => {
     setPage(newPage);
   };
 
-  const convertTimestampToDate = tmstp => {
-    let d = new Date(tmstp);
-    let date = d.getDate() + '/' + (d.getMonth() + 1) + '/' + d.getFullYear();
-    return date;
+  const deleteCommitteeData = async id => {
+    await axios
+      .delete(`https://localhost:44312/api/Committee?CId=${id}`)
+      .then(res => {
+        console.log('Record is deleted', res);
+      toast.success(`${res.data.Message}`);
+        
+      })
+      .catch(error => {
+        console.log(error);
+        toast.error(error);
+      });
   };
 
-  // useEffect(() => {
-  //   console.log(selectedCommittees);
-  // }, [selectedCommittees])
+  useEffect(() => {
+    
+  }, [committeeData]);
 
+
+  
   return (
     <Card className={clsx(classes.root, className)} {...rest}>
-      <Button
-        color="secondary"
-        variant="contained"
-      
-      >
-        Delete Selected
-      </Button>
+      <ToastContainer/>
       <PerfectScrollbar>
-     
-          <Box>
+      {committees.slice(page * limit, page * limit + limit).map((d, i) => (
+          <Box key={i}>
            
             <Typography color="textPrimary" variant="body1">
-              'Name: "dffdfdg"
-              'Year: "2013"
+            {'Name: ' + d.CName + '  '}
+              {'Year: ' + d.CYear}
             </Typography>
-
+            <Button
+                          color="secondary"
+                          variant="contained"
+                         
+                          onClick={() => deleteCommitteeData(d.CId)}
+                        >
+                          Delete
+                        </Button>
             <Box minWidth={1050}>
               <Table>
                 <TableHead>
                   <TableRow>
-                    {/* <TableCell padding="checkbox">
-                  <Checkbox
-                    checked={selectedCommittees.length === committees.length}
-                    color="primary"
-                    indeterminate={
-                      selectedCommittees.length > 0
-                      && selectedCommittees.length < committees.length
-                    }
-                    onChange={handleSelectAll}
-                  />
-                </TableCell> */}
+                   
                     <TableCell>Sr. No</TableCell>
                     <TableCell>Name</TableCell>
                     <TableCell>Designation</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                 
+                {d.addCommitteeData.map((committee, i) => (
                     <TableRow
                       hover
-                     
+                      key={i}
                      
                     >
-                      {/* <TableCell padding="checkbox">
-                    <Checkbox
-                      checked={selectedCommittees.indexOf(committee.key) !== -1}
-                      onChange={(event) => handleSelectOne(event, committee.key)}
-                      value="true"
-                    />
-                  </TableCell> */}
+                     
                       <TableCell>
                         <Box alignItems="center" display="flex">
                           <Typography color="textPrimary" variant="body1">
-                           40
+                          {i + 1}
                           </Typography>
                         </Box>
                       </TableCell>
-                      <TableCell>fdgfff</TableCell>
-                      <TableCell>fgfdfhgh</TableCell>
+                      <TableCell>{committee.MemberName}</TableCell>
+                      <TableCell>{committee.Designation}</TableCell>
                     </TableRow>
-                  
+                  ))}
                 </TableBody>
               </Table>
             </Box>
           </Box>
-        
+          ))}
       </PerfectScrollbar>
       <TablePagination
         component="div"
@@ -174,7 +135,7 @@ const Results = ({ className, committees, ...rest }) => {
 
 Results.propTypes = {
   className: PropTypes.string,
-  customers: PropTypes.array.isRequired
+  committees: PropTypes.array.isRequired
 };
 
 export default Results;

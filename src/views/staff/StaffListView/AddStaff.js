@@ -18,6 +18,11 @@ import Page from 'src/components/Page';
 import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+const SUPPORTED_FORMATS = ["image/jpeg", "image/jpg", "image/png"];
+
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -39,6 +44,7 @@ const AddStaff = ({ handleDrawerClose }) => {
 
   return (
     <Page className={classes.root} title="Staff">
+    <ToastContainer></ToastContainer>
       <Box
         display="flex"
         flexDirection="column"
@@ -80,7 +86,9 @@ const AddStaff = ({ handleDrawerClose }) => {
 
               Expertise: yup.string().required('expertise Is Required!'),
 
-              Experience: yup.string().required('experience Is Required!')
+              Experience: yup.string().required('experience Is Required!'),
+
+              
             })}
             onSubmit={async (values, { resetForm }) => {
               await axios
@@ -88,12 +96,14 @@ const AddStaff = ({ handleDrawerClose }) => {
                 .then(res => {
                   console.log(res.data);
                   console.log(values);
+                  toast.success(`${res.data.Message}`)
                   resetForm();
                   handleDrawerClose();
                   navigate(0);
                 })
                 .catch(error => {
                   console.log(error);
+                  toast.error(error)
                 });
             }}
           >

@@ -18,6 +18,8 @@ import Page from 'src/components/Page';
 import { useState } from 'react';
 import axios from 'axios';
 import { NotificationManager } from 'react-notifications';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from 'react-router-dom';
 import {
   KeyboardDatePicker,
@@ -85,6 +87,7 @@ const AddActivity = ({ handleDrawerClose }) => {
 
   return (
     <Page className={classes.root} title="Activities">
+    <ToastContainer/>
       <Box
         display="flex"
         flexDirection="column"
@@ -122,11 +125,12 @@ const AddActivity = ({ handleDrawerClose }) => {
                 .post('https://localhost:44312/api/Activity', payload)
                 .then(res => {
                   console.log(res.data);
-                  NotificationManager.success('Activity Data Deleted', 'Successful!', 2000);
-                  navigate(0);
+                  toast.success(`${res.data.Message}`);
+                  handleDrawerClose();
                 })
                 .catch(error => {
                   console.log(error);
+                  toast.error(error);
                 });
             }}
           >

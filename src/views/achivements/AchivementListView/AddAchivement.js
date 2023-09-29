@@ -18,6 +18,8 @@ import { useState } from 'react';
 import axios from "axios";
 import { useNavigate } from 'react-router-dom';
 import { NotificationManager } from 'react-notifications';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 
 const useStyles = makeStyles((theme) => ({
@@ -42,6 +44,7 @@ const useStyles = makeStyles((theme) => ({
       className={classes.root}
       title="Achivement"
     >
+    <ToastContainer/>
       <Box
         display="flex"
         flexDirection="column"
@@ -68,11 +71,12 @@ const useStyles = makeStyles((theme) => ({
                     console.log(values);
                     resetForm();
                     handleDrawerClose();
-                    navigate(0);
-                    NotificationManager.success('Achievement Data Added', 'Successful!', 2000);
+
+                    toast.success(`${res.data.Message}`);
                   })
                   .catch(error => {
                     console.log(error);
+                    toast.error(error);
                   })
               }}
             >

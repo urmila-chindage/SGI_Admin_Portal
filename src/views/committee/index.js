@@ -16,9 +16,12 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import AddCommittee from './AddCommittee';
 import Results from './Results';
+import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 
-const drawerWidth = "80%";
+const drawerWidth = "40%";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -85,6 +88,7 @@ const Committee = () => {
   const theme = useTheme();
   const [committees, setcommittees] = useState([]);
   const [open, setOpen] = useState(false);
+    const [isLoading, setisLoading] = useState(true);
 
   
 
@@ -96,17 +100,37 @@ const Committee = () => {
     setOpen(false);
   };
 
- 
+  const getAllCommitteeData = async () => {
+    await axios
+      .get('https://localhost:44312/api/Committee')
+      .then(res => {
+        console.log(res.data.data);
+        setcommittees(res.data.data);
+                setisLoading(false);
+      })
+      .catch(error => {
+        console.log(error);
+        toast.error(error);
+      });
+  };
+  useEffect(() => {
+    getAllCommitteeData();
+  }, []);
 
   return (
     <Page
       className={classes.root}
       title="Committee"
     >
+    { isLoading ?
+      (
+            <Box className='custom-loader'></Box>
+          ):(
       <Container maxWidth={false}>
+      <ToastContainer/>
         <Toolbar handleDrawerOpen={handleDrawerOpen}/>
         <Box mt={3}>
-          <Results committees={committees} />
+          <Results committees={committees}/>
         </Box>
         <Drawer
         className={classes.drawer}
@@ -126,6 +150,8 @@ const Committee = () => {
         <AddCommittee handleDrawerClose={handleDrawerClose} />
       </Drawer>
       </Container>
+            )
+    }
     </Page>
   );
 };

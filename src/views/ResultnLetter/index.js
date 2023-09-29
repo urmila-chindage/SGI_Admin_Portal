@@ -15,6 +15,8 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import Results from './Results';
 import AddResultnLetterData from './AddResultnLetterData';
 import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const drawerWidth = '80%';
 
@@ -87,6 +89,7 @@ const ResultnLetter = () => {
   const [results, setResults] = useState([]);
   const [letter, setLetter] = useState([]);
   const theme = useTheme();
+      const [isLoading, setisLoading] = useState(true);
   
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -116,10 +119,12 @@ const ResultnLetter = () => {
         })
         setResults(resultData);
         setLetter(letterData);
+                        setisLoading(false);
         
       })
       .catch(error => {
         console.log(error);
+        toast.error(error);
       });
   };
 
@@ -129,7 +134,12 @@ const ResultnLetter = () => {
 
   return (
     <Page className={classes.root} title="Academic Calendar">
+        { isLoading ?
+      (
+            <Box className='custom-loader'></Box>
+          ):(
       <Container maxWidth={false}>
+      <ToastContainer/>
         <Toolbar handleDrawerOpen={handleDrawerOpen} />
         <Box mt={3}>
           <Results resultnLetter={results} style={{marginBottom:"10px"}}/>
@@ -157,6 +167,8 @@ const ResultnLetter = () => {
          
         </Drawer>
       </Container>
+                  )
+    }
     </Page>
   );
 };

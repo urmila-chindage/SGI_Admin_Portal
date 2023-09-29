@@ -14,13 +14,20 @@ import {
   import { useRef } from 'react';
   import clsx from 'clsx';
   import axios from "axios";
+  import { NotificationManager } from 'react-notifications';
+  import { useNavigate } from 'react-router-dom';
+  import { ToastContainer, toast } from "react-toastify";
+  import "react-toastify/dist/ReactToastify.css";
   
   const useStyles = makeStyles(theme => ({
     root: {
-      backgroundColor: theme.palette.background.dark,
+      //backgroundColor: theme.palette.background.dark,
       minHeight: '100%',
       padding: theme.spacing(3),
       //paddingTop: theme.spacing(3)
+    },
+    Button : {
+        marginTop : "10px"
     }
   }));
 
@@ -28,8 +35,15 @@ import {
     const classes = useStyles();
     const theme = useTheme();
 
-    const [uploadImage,setUploadImage] = useState('');
-    const [moreInfoLink,setMoreInfoLink] = useState('');
+    //const [uploadImage,setUploadImage] = useState('');
+    //const [moreInfoLink,setMoreInfoLink] = useState('');
+
+    const [modalImage,setModalImage] = useState({
+       uploadImage : "",
+       moreInfoLink : ""
+    })
+
+    const navigate = useNavigate();
 
     const [displayModalImage,setDisplayModalImage] = useState([]);
 
@@ -39,8 +53,8 @@ import {
       if (e.target.files && e.target.files[0]) {
         let reader = new FileReader();
         reader.onload = e => {
-         
-          setUploadImage(e.target.result);
+          setModalImage({...modalImage,uploadImage : e.target.result})
+          //setUploadImage(e.target.result);
         };
         reader.readAsDataURL(e.target.files[0]);
       }
@@ -52,17 +66,20 @@ import {
 
     const saveModalData = async() =>{
       const payload = {
-        MWImage : uploadImage,
-        MWLink : moreInfoLink
+        MWImage : modalImage.uploadImage,
+        MWLink : modalImage.moreInfoLink
        
       }
        await axios.post("https://localhost:44312/api/ModalWindow",payload)
       .then((res)=>{
         console.log(res);
-       
+        // NotificationManager.success('Modal Image is Added!', 'Successful!', 2000);
+        toast.success(`${res.data.Message}`);
+        // navigate('/');
       })
       .catch((error)=>{
         console.log(error);
+        toast.error(`${error.message}`);
       })
     }
 
@@ -70,17 +87,15 @@ import {
       await axios
       .get('https://localhost:44312/api/ModalWindow')
       .then(res => {
-        console.log(res.data.data);
-        const modalImageData = res.data.data;
-       
-        console.log(modalImageData[modalImageData.length-1])
-
-        const latestData = modalImageData[modalImageData.length-1];
-
-        setDisplayModalImage({
-          uploadImage : latestData.MWImage,
-          moreInfoLink : latestData.MWLink
-        })
+        let modalData = res.data.data
+        console.log(modalData.length)
+        for(let i = 0; i < modalData.length; i++){
+          setModalImage({
+            ...modalImage,
+            uploadImage: modalData[i].MWImage,
+            moreInfoLink: modalData[i].MWLink,
+          });
+        }
       })
       .catch(error => {
         console.log(error);
@@ -94,8 +109,10 @@ import {
     
 
    return (
+    <>
+          <ToastContainer />
       <Card
-        className={clsx(classes.root, className)}
+        className={clsx(classes.root)}
         style={{
           display: 'flex',
           justifyContent: 'center',
@@ -106,16 +123,19 @@ import {
       >
         <CardHeader title="Modal Window" />
         <Divider />
-        <Avatar alt="Modal Image" src={displayModalImage.MWImage}/>
-        <Button
-          color="primary"
-          size="large"
-          variant="contained"
-          onClick={handleImageChange}
-        >
-          Change Image
-        </Button>
-         
+        <Avatar alt="Modal Image" src={modalImage.uploadImage} m={3} onClick={() => {
+              window.open(modalImage.uploadImage, 'width=200, height=200');
+            }}/>
+        <Box my={2}> 
+          <Button
+            color="primary"
+            size="large"
+            variant="contained"
+            onClick={handleImageChange}
+          >
+              Change Image
+          </Button>
+         </Box>
         <input
           type="file"
           name="modalImage"
@@ -125,16 +145,18 @@ import {
           onChange={modalUploadImage}
         />
 
-        <img src={uploadImage} style={{width:"60px",height:"60px",border:"1px solid #000",marginLeft:"5px"}}/>
+        <img src={modalImage.uploadImage} style={{width:"60px",height:"60px",border:"1px solid #000",marginLeft:"5px",marginTop:"10px"}}/>
 
       <TextField
           fullWidth
           label="More Info Link"
           margin="normal"
           name="this year"
-          onChange={e => setMoreInfoLink(e.target.value)}
+          onChange={e => {
+            setModalImage({ ...modalImage, moreInfoLink: e.target.value });
+          }}
           
-          value={moreInfoLink}
+          value={modalImage.moreInfoLink}
           variant="outlined"
         />
         <Box my={2}>
@@ -150,6 +172,7 @@ import {
           </Button>
         </Box>
       </Card>
+      </>
     );
   };
   

@@ -11,10 +11,13 @@ import {
 } from '@material-ui/core';
 import Page from 'src/components/Page';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import "../Testimonials/Testimonials.css";
-
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { Children, cloneElement } from 'react';
+import loader from "../../Images/loader.gif";
+import { useNavigate } from 'react-router-dom';
 
 
 
@@ -35,6 +38,8 @@ const AddTestimonial = ({ handleDrawerClose }) => {
   const classes = useStyles();
 
  const [avatarPreview, setAvatarPreview] = useState("");
+ const [loader,setLoader] = useState(false);
+
  const navigate = useNavigate();
 
  return (
@@ -69,25 +74,29 @@ const AddTestimonial = ({ handleDrawerClose }) => {
             })}
            
             onSubmit={async (values,{resetForm }) => {
-             
+             setLoader(true);
               await axios.post("https://localhost:44312/api/Testimonials",values)
               .then((res)=>{
                 console.log(res.data);
                 console.log(values);
-               
-                 resetForm()
-                  handleDrawerClose();
-                  navigate(0);
+                toast.success("Record Added Successfully")
+                resetForm();
+                handleDrawerClose();
+                navigate(0);          
               })
               
               .catch((error)=>{
-                console.log(error)
+                console.log(error);
+                toast.error(`${error.message}`);
               })
+              
             }}
           >
             {({ errors, handleBlur, handleSubmit, isSubmitting,touched,handleChange,setFieldValue,values }) => (
+             
               <form onSubmit={handleSubmit}>
-              
+               
+                <ToastContainer/>
                 <Box mb={3}>
                   <Typography color="textPrimary" variant="h2">
                     Add new Testimonial
@@ -161,7 +170,10 @@ const AddTestimonial = ({ handleDrawerClose }) => {
                     Add
                   </Button>
                 </Box>
+                
               </form>
+            
+              
             )}
           </Formik>
         </Container>

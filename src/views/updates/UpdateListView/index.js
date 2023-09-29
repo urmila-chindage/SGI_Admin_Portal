@@ -15,8 +15,9 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import AddUpdate from './AddUpdate';
 import axios from "axios";
+import loader from "../../../Images/1920x1080-0724884440e8ddd0896ff557b75a222a.gif"
 
-const drawerWidth = "80%";
+const drawerWidth = "40%";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -83,6 +84,7 @@ const UpdateListView = () => {
   const theme = useTheme();
   const [updates, setUpdates] = useState([]);
   const [open, setOpen] = useState(false);
+  const [isLoading, setisLoading] = useState(true);
 
   const getAllUpdateData = async () => {
     await axios
@@ -90,6 +92,7 @@ const UpdateListView = () => {
       .then(res => {
         console.log(res.data.data);
         setUpdates(res.data.data);
+        setisLoading(false);
       })
       .catch(error => {
         console.log(error);
@@ -114,6 +117,10 @@ const UpdateListView = () => {
       className={classes.root}
       title="Updates"
     >
+    { isLoading ?
+      (
+            <Box className='custom-loader'></Box>
+          ):(
       <Container maxWidth={false}>
         <Toolbar openDrawer={handleDrawerOpen}/>
         <Box mt={3}>
@@ -137,6 +144,8 @@ const UpdateListView = () => {
        
       </Drawer>
       </Container>
+      )
+    }
     </Page>
   );
 };

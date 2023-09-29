@@ -15,7 +15,8 @@ import { useState } from 'react';
 import axios from "axios";
 import { useNavigate } from 'react-router-dom';
 import { NotificationManager } from 'react-notifications';
-
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -42,6 +43,7 @@ const AddImpLink = ({ handleDrawerClose }) => {
   
  return (
     <Page className={classes.root} content="News">
+    <ToastContainer/>
       <Box
         display="flex"
         flexDirection="column"
@@ -58,17 +60,17 @@ const AddImpLink = ({ handleDrawerClose }) => {
              const payload = {
               HtmlContent : data.content,
               File : data.file,
-              IsFile : data.isFiles
+              FileButton: data.isFiles
              }
              await axios.post("https://localhost:44312/api/ImportantLink",payload)
              .then((res)=>{
                   console.log(res.data)
                   handleDrawerClose();
-                  NotificationManager.success('Important link Data Added', 'Successful!', 2000);
-                  navigate(0);
+toast.success(`${res.data.Message}`);
              })
              .catch((error)=>{
                 console.log(error);
+                toast.error(error);
              })
             }}
           >

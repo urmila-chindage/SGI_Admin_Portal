@@ -13,20 +13,6 @@ import {
   makeStyles
 } from '@material-ui/core';
 
-const states = [
-  {
-    value: 'alabama',
-    label: 'Alabama'
-  },
-  {
-    value: 'new-york',
-    label: 'New York'
-  },
-  {
-    value: 'san-francisco',
-    label: 'San Francisco'
-  }
-];
 
 const useStyles = makeStyles(() => ({
   root: {}
@@ -35,12 +21,12 @@ const useStyles = makeStyles(() => ({
 const ProfileDetails = ({ className, ...rest }) => {
   const classes = useStyles();
   const [values, setValues] = useState({
-    firstName: 'Katarina',
-    lastName: 'Smith',
-    email: 'demo@devias.io',
-    phone: '',
-    state: 'Alabama',
-    country: 'USA'
+    firstName: 'Urmila',
+    lastName: 'Sirase',
+    email: 'urmilachindage@gmail.com',
+    phone: '9098765412',
+    state: 'Maharashtra',
+    country: 'India'
   });
 
   const handleChange = (event) => {
@@ -59,7 +45,7 @@ const ProfileDetails = ({ className, ...rest }) => {
     >
       <Card>
         <CardHeader
-          subheader="The information can be edited"
+         
           title="Profile"
         />
         <Divider />
@@ -151,24 +137,13 @@ const ProfileDetails = ({ className, ...rest }) => {
             >
               <TextField
                 fullWidth
-                label="Select State"
+                label="Country"
                 name="state"
                 onChange={handleChange}
                 required
-                select
-                SelectProps={{ native: true }}
                 value={values.state}
                 variant="outlined"
-              >
-                {states.map((option) => (
-                  <option
-                    key={option.value}
-                    value={option.value}
-                  >
-                    {option.label}
-                  </option>
-                ))}
-              </TextField>
+              />
             </Grid>
           </Grid>
         </CardContent>
@@ -178,12 +153,12 @@ const ProfileDetails = ({ className, ...rest }) => {
           justifyContent="flex-end"
           p={2}
         >
-          <Button
+          {/*<Button
             color="primary"
             variant="contained"
           >
             Save details
-          </Button>
+  </Button>*/}
         </Box>
       </Card>
     </form>

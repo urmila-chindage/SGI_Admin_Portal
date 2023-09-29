@@ -19,6 +19,8 @@ import {
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { NotificationManager } from 'react-notifications';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -48,15 +50,11 @@ const Results = ({ className, library, ...rest }) => {
       .delete(`https://localhost:44312/api/Library?LId=${id}`)
       .then(res => {
         console.log('Record is deleted', res);
-        NotificationManager.success(
-          'Library Data is Deleted',
-          'Successful!',
-          2000
-        );
-        navigate(0);
+toast.success(`${res.data.Message}`);
       })
       .catch(error => {
         console.log(error);
+        toast.error(error);
       });
   };
 
@@ -66,6 +64,7 @@ const Results = ({ className, library, ...rest }) => {
 
   return (
     <Card className={clsx(classes.root, className)} {...rest}>
+    <ToastContainer/>
       <PerfectScrollbar>
         <Box minWidth={1050}>
           <Table>
@@ -75,6 +74,7 @@ const Results = ({ className, library, ...rest }) => {
                 <TableCell>File</TableCell>
                 <TableCell>Category</TableCell>
                 <TableCell>Posted On</TableCell>
+                <TableCell>Action</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -131,7 +131,7 @@ const Results = ({ className, library, ...rest }) => {
 
 Results.propTypes = {
   className: PropTypes.string,
-  customers: PropTypes.array.isRequired
+  library: PropTypes.array.isRequired
 };
 
 export default Results;

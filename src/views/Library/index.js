@@ -15,6 +15,8 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import Results from './Results';
 import AddLibraryData from './AddLIbraryData';
 import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const drawerWidth = '80%';
 
@@ -88,6 +90,7 @@ const Library = () => {
   const [achievements, setAchievements] = useState([]);
   const [bookbank, setBookbank] = useState([]);
   const theme = useTheme();
+    const [isLoading, setisLoading] = useState(true);
 
  const handleDrawerOpen = () => {
     setOpen(true);
@@ -120,9 +123,11 @@ const Library = () => {
         setReports(reportData);
         setAchievements(achievementData);
         setBookbank(bookbankData);
+                setisLoading(false);
         })
       .catch(error => {
         console.log(error);
+        toast.error(error);
       });
   };
 
@@ -132,7 +137,12 @@ const Library = () => {
 
   return (
     <Page className={classes.root} title="Academic Calendar">
+    { isLoading ?
+      (
+            <Box className='custom-loader'></Box>
+          ):(
       <Container maxWidth={false}>
+      <ToastContainer/>
         <Toolbar handleDrawerOpen={handleDrawerOpen} />
         <Box mt={3}>
           <Results library={reports} style={{marginBottom:"10px"}}/>
@@ -160,6 +170,8 @@ const Library = () => {
           <AddLibraryData handleDrawerClose={handleDrawerClose} />
          </Drawer>
       </Container>
+            )
+    }
     </Page>
   );
 };

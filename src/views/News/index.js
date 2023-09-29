@@ -17,10 +17,12 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 
 import AddNews from './AddNews';
 import NewsResults from './NewsResult';
-
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import AddImpLink from './AddImpLink';
 import LinksResult from './LinksResult';
 import axios from "axios";
+import loader from "../../Images/1920x1080-0724884440e8ddd0896ff557b75a222a.gif"
 
 const drawerWidth = '80%';
 
@@ -94,6 +96,7 @@ const NewsList = () => {
   const [news, setNews] = useState([]);
   const [links, setLinks] = useState([]);
   const theme = useTheme();
+    const [isLoading, setisLoading] = useState(true);
 
  const handleDrawerOpen = () => {
     setOpen(true);
@@ -116,9 +119,11 @@ const NewsList = () => {
       .then(res => {
         console.log(res.data.data);
         setNews(res.data.data);
+        setisLoading(false);
       })
       .catch(error => {
         console.log(error);
+        toast.error(error);
       });
   };
 
@@ -128,9 +133,11 @@ const NewsList = () => {
       .then(res => {
         console.log(res.data.data);
         setLinks(res.data.data);
+                setisLoading(false);
       })
       .catch(error => {
         console.log(error);
+        toast.error(error);
       });
   };
 
@@ -142,7 +149,12 @@ const NewsList = () => {
 
   return (
     <Page className={classes.root} title="News">
+    { isLoading ?
+      (
+            <Box className='custom-loader'></Box>
+          ):(
       <Container maxWidth={false}>
+      <ToastContainer/>
         <Toolbar
           handleDrawerOpen={handleDrawerOpen}
           handleImpLinksOpen={handleImpLinksDrawerOpen}
@@ -201,6 +213,8 @@ const NewsList = () => {
           <AddImpLink handleDrawerClose={handleImpLinksDrawerClose} />
         </Drawer>
       </Container>
+            )
+    }
     </Page>
   );
 };
