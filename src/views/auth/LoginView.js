@@ -39,6 +39,23 @@ const LoginView = () => {
   const classes = useStyles();
   const navigate = useNavigate();
   const [isDisabled, setIsDisabled] = useState(false);
+  const [loginUser,setLoginUser] = useState([]);
+
+  //const [otp,setOtp] = useState("");
+  //const [email,setEmail] = useState('');
+
+  const getOtp = async(values) => {
+     await axios.get("https://localhost:44312/api/WebSiteLogin/AdmissionFormLogin")
+     .then((res)=>{
+      console.log(res.data.data);
+      setLoginUser(res.data.data);
+      localStorage.setItem("user", JSON.stringify(res.data));
+      //localStorage.clear();
+     })
+     .catch((error)=>{
+      console.log(error);
+     })
+  }
 
  return (
     <Page className={classes.root} title="Login">
@@ -52,44 +69,57 @@ const LoginView = () => {
         <Formik
             initialValues={{
               email: '',
-              password: ''
+              otp: ''
             }}
             validationSchema={Yup.object().shape({
               email: Yup.string()
                 .email('Must be a valid email')
                 .max(255)
                 .required('Email is required'),
-              password: Yup.string()
+              otp: Yup.string()
                 .max(255)
-                .required('Password is required')
+                .required('otp is required')
             })}
-            onSubmit={async (values) => {
-             let payload={
-                Email : values.email,
-                Password : values.password 
-              }
-              //console.log(values)
-              setIsDisabled(true);
-               await axios.post("https://localhost:44312/api/Registration/Login",payload)
-               .then((res)=>{
-                console.log(res.data);
-                localStorage.setItem("user", JSON.stringify(res.data));
-                if(values.email===res.data.Email && values.password === res.data.Password){
-                  navigate('/app/dashboard', { replace: true });
+            onSubmit={ (values) => {
+              const authUser = JSON.parse(localStorage.getItem('user'));
+              console.log(values.email,authUser)
+                if(values.email===authUser.data[0].Email && values.otp === authUser.OTP){
                   
+                  navigate('/app/dashboard', { replace: true });
                 }
-                else {
-                 toast.error("User Data does not found");
+                else{
+                  toast.error("User Data does not found");
                 }
+              }}
+             //let payload={
+              //  Email : values.email,
+              //  OTP : values.otp 
+             // }
+              //console.log(values)
+             // setIsDisabled(true);
+             //  await axios.post("https://localhost:44312/api/WebSiteLogin",payload)
+             //  .then((res)=>{
+             //   console.log(res.data);
+               // localStorage.setItem("user", JSON.stringify(res.data));
+               // if(values.email===res.data.Email && values.otp === res.data.otp){
+                //  navigate('/app/dashboard', { replace: true });
+                  
+               // }
+               // else {
+               //  toast.error("User Data does not found");
+               // }
                
-                setIsDisabled(false);
-               })
-               .catch((error)=>{
-                console.log(error);
-               })
+               // setIsDisabled(false);
+               //})
+              // .catch((error)=>{
+               // console.log(error);
+             // })
                
-            }}
+           
+
+          
           >
+            
             {({
               errors,
               handleBlur,
@@ -120,17 +150,29 @@ const LoginView = () => {
                   value={values.email}
                   variant="outlined"
                 />
+                <Box my={2}>
+                  <Button
+                    color="primary"
+                    onClick={()=>getOtp()}
+                    fullWidth
+                    size="large"
+                   
+                    variant="contained"
+                  >
+                    Send OTP
+                  </Button>
+                </Box>
                 <TextField
-                  error={Boolean(touched.password && errors.password)}
+                  error={Boolean(touched.otp && errors.otp)}
                   fullWidth
-                  helperText={touched.password && errors.password}
-                  label="Password"
+                  helperText={touched.otp && errors.otp}
+                  label="Enter OTP"
                   margin="normal"
-                  name="password"
+                  name="otp"
                   onBlur={handleBlur}
                   onChange={handleChange}
-                  type="password"
-                  value={values.password}
+                  type="text"
+                  value={values.otp}
                   variant="outlined"
                 />
                 <Box my={2}>

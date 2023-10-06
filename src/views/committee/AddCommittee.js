@@ -83,8 +83,9 @@ const AddCommittee = ({handleDrawerClose}) => {
               .then((res)=>{
                   console.log(res.data);
                   handleDrawerClose();
-                  //resetForm();
+                  resetForm();
                   toast.success(`${res.data.Message}`);
+                  navigate(0);
                 })
                 .catch((error)=>{
                   console.log(error);

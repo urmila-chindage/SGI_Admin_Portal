@@ -59,6 +59,7 @@ const AddUpdate = ({ handleDrawerClose }) => {
                   toast.success(`${res.data.Message}`)
                   handleDrawerClose();
                   resetForm();
+                  navigate(0);
                 })
                 .catch(error => {
                   console.log(error);

@@ -49,10 +49,11 @@ const TotalHits = ({ className, ...rest }) => {
 
  
     useEffect(() => {
-      axios.get("https://localhost:44312/api/Registration")
+      axios.get("https://localhost:44312/api/WebSiteLogin/GetOTPnEmail")
      .then(res => {
-       console.log(res.data)
-       setData({count: res.data.MonthlyCount});
+       console.log(res.data.data.Count)
+       //setData({count: res.data.MonthlyCount});
+       setData({count:res.data.data.Count})
      })
    }, [])
  

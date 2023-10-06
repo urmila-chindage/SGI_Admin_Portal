@@ -71,8 +71,8 @@ const useStyles = makeStyles((theme) => ({
                     console.log(values);
                     resetForm();
                     handleDrawerClose();
-
                     toast.success(`${res.data.Message}`);
+                    navigate(0);
                   })
                   .catch(error => {
                     console.log(error);

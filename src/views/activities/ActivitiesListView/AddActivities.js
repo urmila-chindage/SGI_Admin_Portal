@@ -127,6 +127,7 @@ const AddActivity = ({ handleDrawerClose }) => {
                   console.log(res.data);
                   toast.success(`${res.data.Message}`);
                   handleDrawerClose();
+                  navigate(0);
                 })
                 .catch(error => {
                   console.log(error);

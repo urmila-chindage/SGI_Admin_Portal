@@ -49,7 +49,8 @@ const LinksResult = ({ className, importantLinks, ...rest }) => {
       .delete(`https://localhost:44312/api/ImportantLink?ILId=${id}`)
       .then(res => {
         console.log('Record is deleted', res);
-toast.success(`${res.data.Message}`);
+        toast.success(`${res.data.Message}`);
+        navigate(0);
       })
       .catch(error => {
         console.log(error);
@@ -94,8 +95,8 @@ toast.success(`${res.data.Message}`);
                       </TableCell>
                       <TableCell>
                         {links.FileButton ? (
-                          <a href={links.File} target="blank">
-                            Open File
+                          <a href={links.File} target={links.File}>
+                            Download File
                           </a>
                         ) : (
                           'No File'

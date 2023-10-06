@@ -18,7 +18,6 @@ import {
 } from '@material-ui/core';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { NotificationManager } from 'react-notifications';
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -29,15 +28,15 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const Results = ({ className, calendars, ...rest }) => {
+const Results = ({ className, audit, ...rest }) => {
   const classes = useStyles();
-  const [calendarData, setCalendarData] = useState([]);
+  const [auditReport, setAuditReport] = useState([]);
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(0);
 
   const navigate = useNavigate();
 
-  const handleLimitChange = event => {
+ const handleLimitChange = event => {
     setLimit(event.target.value);
   };
 
@@ -45,11 +44,9 @@ const Results = ({ className, calendars, ...rest }) => {
     setPage(newPage);
   };
 
-  const deleteCalendarData = async id => {
+  const deleteAuditData = async id => {
     await axios
-      .delete(
-        `https://localhost:44312/api/Calendar?CId=${id}`
-      )
+      .delete(`https://localhost:44312/api/AuditReport?ARId=${id}`)
       .then(res => {
         console.log('Record is deleted', res);
         toast.success(`${res.data.Message}`);
@@ -60,70 +57,65 @@ const Results = ({ className, calendars, ...rest }) => {
         toast.error(error);
       });
   };
-
+  
   useEffect(() => {
-    
-  }, [calendarData]);
+    console.log(auditReport);
+    }, [auditReport]);
 
   return (
     <Card className={clsx(classes.root, className)} {...rest}>
-    <ToastContainer/>
       <PerfectScrollbar>
         <Box minWidth={1050}>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Year</TableCell>
-                <TableCell>Level</TableCell>
+                <TableCell>title</TableCell>
                 <TableCell>File</TableCell>
-                <TableCell>Department</TableCell>
                 <TableCell>Posted On</TableCell>
-                <TableCell>Action</TableCell>
               </TableRow>
             </TableHead>
-
             <TableBody>
-            {calendars
+            {audit
                 .slice(page * limit, page * limit + limit)
-                .map(calendar => {
+                .map(auditItem => {
                   return (
-              <TableRow hover key={calendar.CId}>
-              
-                <TableCell>
-                  <Box alignItems="center" display="flex">
-                    <Typography color="textPrimary" variant="body1">
-                      {calendar.Year}
-                    </Typography>
-                  </Box>
-                </TableCell>
-                <TableCell>{calendar.Level}</TableCell>
-                <TableCell>
-                  <a href={calendar.File} target={calendar.File}>
-                  Download File
-                  </a>
-                </TableCell>
-                <TableCell>{calendar.Department}</TableCell>
-                <TableCell>{calendar.CreatedDate}</TableCell>
+                  <TableRow hover key={auditItem.ARId}>
+                   
+                    <TableCell>
+                      <Box alignItems="center" display="flex">
+                        <Typography color="textPrimary" variant="body1">
+                          {auditItem.Title}
+                        </Typography>
+                      </Box>
+                    </TableCell>
+                    <TableCell>
+                      <a href={auditItem.File} target={auditItem.File}>
+                        Download File
+                      </a>
+                    </TableCell>
+                    <TableCell>
+                      {auditItem.CreatedDate}
+                    </TableCell>
 
-                <TableCell>
+                    <TableCell>
                         <Button
                           color="secondary"
                           variant="contained"
-                          onClick={() => deleteCalendarData(calendar.CId)}
+                          onClick={() => deleteAuditData(auditItem.ARId)}
                         >
                           Delete
                         </Button>
                       </TableCell>
-              </TableRow>
-               );
-              })}
+                  </TableRow>
+                  )
+                })}
             </TableBody>
           </Table>
         </Box>
       </PerfectScrollbar>
       <TablePagination
         component="div"
-        count={calendars.length}
+        count={audit.length}
         onChangePage={handlePageChange}
         onChangeRowsPerPage={handleLimitChange}
         page={page}
@@ -135,8 +127,7 @@ const Results = ({ className, calendars, ...rest }) => {
 };
 
 Results.propTypes = {
-  className: PropTypes.string,
-  calendars: PropTypes.array.isRequired
+  className: PropTypes.string
 };
 
 export default Results;

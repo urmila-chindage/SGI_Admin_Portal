@@ -50,7 +50,8 @@ const Results = ({ className, resultnLetter, ...rest }) => {
       .delete(`https://localhost:44312/api/ResultnLetter?RId=${id}`)
       .then(res => {
         console.log('Record is deleted', res);
-     toast.success(`${res.data.Message}`);
+        toast.success(`${res.data.Message}`);
+        navigate(0);
       })
       .catch(error => {
         console.log(error);
@@ -94,8 +95,8 @@ const Results = ({ className, resultnLetter, ...rest }) => {
                       </TableCell>
                       <TableCell>{result.Description}</TableCell>
                       <TableCell>
-                        <a href={result.File} target="blank">
-                          Open File
+                        <a href={result.File} target={result.File}>
+                          Download File
                         </a>
                       </TableCell>
                       <TableCell>{result.Category}</TableCell>

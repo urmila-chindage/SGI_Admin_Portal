@@ -7,6 +7,7 @@ import LatestContacts from './LatestContacts';
 import CounterValues from './CounterValues';
 import HomeCarousel from './HomeCarousel';
 //import VideoCarousel from './VideoCarousel';
+import AuditReports from './AuditReports/AuditReports';
 import PhotoGallery from './PhotoGallery';
 import Headlines from './Headlines';
 import SubscribersList from './SubscribersList';
@@ -70,7 +71,9 @@ const Dashboard = () => {
           <Grid item lg={3} sm={6} xl={3} xs={12}>
             <TotalHits />
           </Grid>
-         
+          <Grid item lg={8} md={12} xl={9} xs={12}>
+            <AuditReports />
+          </Grid>
         </Grid>
       </Container>
     </Page>

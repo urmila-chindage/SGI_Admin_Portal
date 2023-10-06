@@ -64,6 +64,8 @@ const CarouselImages = ({ className, ...rest }) => {
     }
   };
 
+  
+
   const getCarouselImages = async () => {
     await axios
       .get('https://localhost:44312/api/SliderImage/GetAllImages')
@@ -130,9 +132,10 @@ const CarouselImages = ({ className, ...rest }) => {
             color="primary"
             avatar={<Avatar alt="Carousel Images" src={carouselImage.Images} />}
             label={index + 1}
-            target={carouselImage.Images}
-            onClick={() => {
-              window.open(carouselImage.Images, 'width=200, height=200');
+            onClick={(mimeType) => {
+              var newTab = window.open();
+               newTab.document.body.innerHTML = <img src={carouselImage.Images} width="100px" height="100px" />
+               //window.open(carouselImage.Images,'width=200','height=200','_blank');
             }}
             onDelete={() => {
               deleteCarouselImage(carouselImage.SIId);

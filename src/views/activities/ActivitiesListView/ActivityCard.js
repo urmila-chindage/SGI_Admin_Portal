@@ -46,7 +46,8 @@ const ActivityCard = ({ className, activity, ...rest }) => {
       .delete(`https://localhost:44312/api/Activity?ActId=${id}`)
       .then(res => {
         console.log('Record is deleted', res);
-toast.success(`${res.data.Message}`);
+        toast.success(`${res.data.Message}`);
+        navigate(0);
       })
       .catch(error => {
         console.log(error);

@@ -50,7 +50,8 @@ const Results = ({ className, library, ...rest }) => {
       .delete(`https://localhost:44312/api/Library?LId=${id}`)
       .then(res => {
         console.log('Record is deleted', res);
-toast.success(`${res.data.Message}`);
+        toast.success(`${res.data.Message}`);
+        navigate(0);
       })
       .catch(error => {
         console.log(error);
@@ -92,8 +93,8 @@ toast.success(`${res.data.Message}`);
                   </Box>
                 </TableCell>
                 <TableCell>
-                  <a href={lab.File} target="_blank">
-                    Open File
+                  <a href={lab.File} target={lab.File}>
+                     Download File
                   </a>
                 </TableCell>
                 <TableCell>{lab.Category}</TableCell>

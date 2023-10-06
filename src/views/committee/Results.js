@@ -52,7 +52,7 @@ const Results = ({ className, committees, ...rest }) => {
       .then(res => {
         console.log('Record is deleted', res);
       toast.success(`${res.data.Message}`);
-        
+        navigate(0)
       })
       .catch(error => {
         console.log(error);

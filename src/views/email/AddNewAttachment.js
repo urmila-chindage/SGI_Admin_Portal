@@ -33,6 +33,8 @@ const AddNewAttachment = ({ className, ...rest }) => {
   const [isDisabled, setIsDisables] = useState(false);
   const classes = useStyles();
 
+  const navigate = useNavigate();
+
   const uploadAttachment = async() =>{
     setIsDisables(true);
     const payload = {
@@ -44,6 +46,7 @@ const AddNewAttachment = ({ className, ...rest }) => {
           console.log(res.data);
           toast.success(`${res.data.Message}`);
           setData({fileName:"",file:null})
+          navigate(0);
         })
         .catch((error)=>{
           console.log(error)

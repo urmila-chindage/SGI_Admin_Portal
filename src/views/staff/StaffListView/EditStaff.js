@@ -15,6 +15,7 @@ import {
 import Page from 'src/components/Page';
 import { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { Fullscreen } from '@material-ui/icons';
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -49,6 +50,7 @@ const EditStaff = ({ handleEditDrawerClose, currentStaffId }) => {
   });
   const [currentFileName, setCurrentFileName] = useState('');
   const [isFiles, setIsFiles] = useState(false);
+  const navigate = useNavigate();
 
   const handleInput= (e)=>{
     setStaff({...staff, [e.target.name]:e.target.value});
@@ -118,7 +120,7 @@ const EditStaff = ({ handleEditDrawerClose, currentStaffId }) => {
                 // console.log(res)
                 toast.success(`${res.data.Message}`)
                 handleEditDrawerClose();
-               
+                navigate(0);
               })
               .catch((error)=>{
                 console.log(error);

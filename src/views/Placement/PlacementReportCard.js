@@ -15,7 +15,6 @@ import GetAppIcon from '@material-ui/icons/GetApp';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { useEffect } from 'react';
 import axios from 'axios';
-import { NotificationManager } from 'react-notifications';
 import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -51,6 +50,7 @@ const PlacementReportCard = ({ className, placement,handleDrawerClose, ...rest }
         console.log('Record is deleted', res);
         toast.success(`${res.data.Message}`);
         handleDrawerClose();
+        navigate(0);
       })
       .catch(error => {
         console.log(error);

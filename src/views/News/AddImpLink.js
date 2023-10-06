@@ -66,7 +66,8 @@ const AddImpLink = ({ handleDrawerClose }) => {
              .then((res)=>{
                   console.log(res.data)
                   handleDrawerClose();
-toast.success(`${res.data.Message}`);
+                  toast.success(`${res.data.Message}`);
+                  navigate(0);
              })
              .catch((error)=>{
                 console.log(error);

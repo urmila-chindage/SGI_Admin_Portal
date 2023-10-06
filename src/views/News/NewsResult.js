@@ -50,7 +50,8 @@ const NewsResults = ({ className, allNews, ...rest }) => {
       .delete(`https://localhost:44312/api/News?NId=${id}`)
       .then(res => {
         console.log('Record is deleted', res);
-toast.success(`${res.data.Message}`);
+        toast.success(`${res.data.Message}`);
+        navigate(0);
       })
       .catch(error => {
         console.log(error);
@@ -88,7 +89,7 @@ toast.success(`${res.data.Message}`);
                       </Box>
                     </TableCell>
                     <TableCell><a href={news.File} target={news.File}>
-                        Open File
+                        Download File
                       </a></TableCell>
                     <TableCell>{news.CreatedDate}</TableCell>
                     <TableCell>

@@ -58,12 +58,12 @@ const Results = ({
       .then(res => {
         console.log('Record is deleted', res);
         toast.success("Record Deleted Successfully");
-        return res.data.data;
+        navigate(0);
       })
       .catch(error => {
         console.log(error);
         toast.error(`${error.message}`);
-        navigate(0);
+        
       });
   };
 

@@ -170,8 +170,8 @@ const NavBar = ({ onMobileClose, openMobile }) => {
   const [loginUser,setLoginUser] = useState([]);
   const navigate = useNavigate();
 
-  const getUserName = async(id) => {
-    await axios.get(`https://localhost:44312/api/Registration/RId?RId=${id}`)
+  //const getUserName = async(id) => {
+    //await axios.get(`https://localhost:44312/api/Registration/RId?RId=${id}`)
     /*if(user){
       user.RId.then(val=>{
           console.log(val);
@@ -183,7 +183,7 @@ const NavBar = ({ onMobileClose, openMobile }) => {
       });
     }*/
    
-  }
+  //}
   const signOut = () =>{
     localStorage.clear();
     navigate('/login');
@@ -224,19 +224,10 @@ const NavBar = ({ onMobileClose, openMobile }) => {
           component={RouterLink}
           to="/app/account"
         >
-        {loginUser.FName}
-        </Avatar>
-        <Typography
-          className={classes.name}
-          color="textPrimary"
-          variant="h5"
-        >
-          {loginUser.FName} {loginUser.LName}
-        </Typography>
-
-        <Typography className={classes.name} color="textPrimary" variant="h5">
-          {loginUser.Email}
-        </Typography>
+       </Avatar>
+      <Typography className={classes.name} color="textPrimary" variant="h5">
+         {loginUser.Emailid}
+      </Typography>
 
         <Typography
           color="textSecondary"

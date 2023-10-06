@@ -49,6 +49,7 @@ const deleteUpdateData = async id => {
       .then(res => {
         console.log('Record is deleted', res);
         toast.success(`${res.data.Message}`)
+        navigate(0);
       })
       .catch(error => {
         console.log(error);
@@ -64,9 +65,9 @@ const deleteUpdateData = async id => {
     setPage(newPage);
   };
 
-useEffect(() => {
+  useEffect(() => {
     
-  }, [updates]);
+  }, [updateData]);
 
   return (
     <Card className={clsx(classes.root, className)} {...rest}>
@@ -104,8 +105,8 @@ useEffect(() => {
                       </TableCell>
                       <TableCell>{update.Description}</TableCell>
                       <TableCell>
-                        <a  href={update.File} target="_blank">
-                          Open File
+                        <a  href={update.File} target={update.File}>
+                          Download File
                         </a>
                       </TableCell>
                       <TableCell>{update.CreatedDate}</TableCell>

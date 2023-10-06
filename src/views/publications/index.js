@@ -89,12 +89,13 @@ const PublicationsList = () => {
   const [publications, setPublications] = useState([]);
   const [open, setOpen] = useState(false);
   const theme = useTheme();
-  const [isLoading, setisLoading] = useState(true);
+  const [isLoading, setisLoading] = useState(false);
 
   const getAllPublicationData = async () => {
     await axios
       .get('https://localhost:44312/api/Publication')
       .then(res => {
+        setisLoading(true)
         console.log(res.data.data);
         setPublications(res.data.data);
         setisLoading(false);
